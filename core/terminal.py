@@ -167,6 +167,9 @@ class Terminal(CmdModules):
 
         dlog.info('>>>> %s' % line)
 
+        if line == 'EOF':
+            raise EOFError()
+
         # Skip slack check is not a remote command
         _cmd = (':set', ':unset', ':show', ':help')
         if not line or any(line.startswith(cmnd) for cmnd in _cmd):

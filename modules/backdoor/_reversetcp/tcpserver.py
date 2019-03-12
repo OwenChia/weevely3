@@ -4,8 +4,8 @@ import socket
 import sys
 import select
 
-class TcpServer:
 
+class TcpServer:
     def __init__(self, port):
         self.connect = False
         self.hostname = '0.0.0.0'
@@ -22,13 +22,13 @@ class TcpServer:
         self.forward_data()
 
     def connect_socket(self):
-        if(self.connect):
+        if (self.connect):
             self.socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
             self.socket.connect((self.hostname, self.port))
 
         else:
             server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-            server.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR,  1)
+            server.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
             try:
                 server.setsockopt(socket.SOL_SOCKET, socket.TCP_NODELAY, 1)
             except socket.error:
@@ -38,7 +38,9 @@ class TcpServer:
             try:
                 server.bind(('0.0.0.0', self.port))
             except socket.error as e:
-                log.error(messages.module_backdoor_reversetcp.error_binding_socket_s % str(e))
+                log.error(
+                    messages.module_backdoor_reversetcp.error_binding_socket_s
+                    % str(e))
                 return
 
             server.listen(1)
@@ -51,36 +53,35 @@ class TcpServer:
                 server.close()
                 raise
 
-
     def forward_data(self):
 
         log.warn(messages.module_backdoor_reversetcp.reverse_shell_connected)
 
         self.socket.setblocking(0)
 
-        while(1):
+        while (1):
             read_ready, write_ready, in_error = select.select(
                 [self.socket, sys.stdin], [], [self.socket, sys.stdin])
 
             try:
                 buffer = self.socket.recv(100)
-                while(buffer != ''):
+                while (buffer != ''):
 
                     self.socket_state = True
 
                     sys.stdout.write(buffer)
                     sys.stdout.flush()
                     buffer = self.socket.recv(100)
-                if(buffer == ''):
+                if (buffer == ''):
                     return
             except socket.error:
                 pass
-            while(1):
+            while (1):
                 r, w, e = select.select([sys.stdin], [], [], 0)
-                if(len(r) == 0):
+                if (len(r) == 0):
                     break
                 c = sys.stdin.read(1)
-                if(c == ''):
+                if (c == ''):
                     return
-                if(self.socket.sendall(c) != None):
+                if (self.socket.sendall(c) != None):
                     return

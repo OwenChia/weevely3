@@ -10,16 +10,10 @@ import hashlib
 import zlib
 import http.client
 import itertools
+import binascii
 
 PREPEND = utils.strings.randstr(16, charset=string.printable).encode()
 APPEND = utils.strings.randstr(16, charset=string.printable).encode()
-
-
-def sxor(s1, s2):
-    seen = []
-    for a, b in zip(s1, itertools.cycle(s2)):
-        seen.append(a ^ b)
-    return bytes(seen)
 
 
 class ObfPost:
@@ -39,11 +33,9 @@ class ObfPost:
 
         # init regexp for the returning data
         self.re_response = re.compile(
-            b"%s(.*)%s" % (self.header, self.trailer),
-            re.DOTALL)
+            b"%s(.*)%s" % (self.header, self.trailer), re.DOTALL)
         self.re_debug = re.compile(
-            b"%sDEBUG(.*?)%sDEBUG" % (self.header, self.trailer),
-            re.DOTALL)
+            b"%sDEBUG(.*?)%sDEBUG" % (self.header, self.trailer), re.DOTALL)
 
         # Load agent
         # TODO: add this to the other channels
@@ -57,9 +49,8 @@ class ObfPost:
     def send(self, original_payload, additional_handlers=[]):
 
         obfuscated_payload = base64.b64encode(
-            sxor(
-                zlib.compress(original_payload.encode()),
-                self.shared_key)).rstrip(b'=')
+            utils.strings.sxor(zlib.compress(original_payload.encode()),
+                               self.shared_key)).rstrip(b'=')
 
         wrapped_payload = PREPEND + self.header + obfuscated_payload + self.trailer + APPEND
 
@@ -75,15 +66,10 @@ class ObfPost:
             ('User-Agent', (additional_ua if additional_ua else self.agent))
         ] + self.additional_headers
 
-        dlog.debug(
-            '[R] %s...' %
-            (wrapped_payload[0:32])
-        )
+        dlog.debug('[R] %s...' % (wrapped_payload[0:32]))
 
-        url = (
-            self.url if not config.add_random_param_nocache
-            else utils.http.add_random_url_param(self.url)
-        )
+        url = (self.url if not config.add_random_param_nocache else
+               utils.http.add_random_url_param(self.url))
 
         try:
             response = opener.open(url, data=wrapped_payload).read()
@@ -104,8 +90,7 @@ class ObfPost:
 
         matched = self.re_response.search(response)
 
-        import binascii
         if matched and matched.group(1):
             b64data = base64.b64decode(matched.group(1))
-            zcomp = sxor(b64data, self.shared_key)
+            zcomp = utils.strings.sxor(b64data, self.shared_key)
             return zlib.decompress(zcomp)

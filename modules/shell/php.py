@@ -9,25 +9,29 @@ import utils
 
 
 class Php(Module):
-
     """Execute PHP commands."""
 
     def init(self):
 
-        self.register_info(
-            {
-                'author': [
-                    'Emilio Pinna'
-                ],
-                'license': 'GPLv3'
-            }
-        )
+        self.register_info({'author': ['Emilio Pinna'], 'license': 'GPLv3'})
 
         self.register_arguments([
-          {'name': 'command', 'help': 'PHP code wrapped in quotes and terminated by semi-comma', 'nargs': '+'},
-          {'name': '-prefix-string', 'default': '@error_reporting(0);'},
-          {'name': '-post_data'},
-          {'name': '-postfix-string', 'default': ''},
+            {
+                'name': 'command',
+                'help': 'PHP code wrapped in quotes and terminated by semi-comma',
+                'nargs': '+'
+            },
+            {
+                'name': '-prefix-string',
+                'default': '@error_reporting(0);'
+            },
+            {
+                'name': '-post_data'
+            },
+            {
+                'name': '-postfix-string',
+                'default': ''
+            },
         ])
 
         self.channel = None
@@ -58,10 +62,7 @@ class Php(Module):
 
         for channel_name in channels:
 
-            channel = Channel(
-                channel_name=channel_name,
-                session=self.session
-            )
+            channel = Channel(channel_name=channel_name, session=self.session)
 
             status = self._check_interpreter(channel)
 
@@ -71,11 +72,9 @@ class Php(Module):
                 break
 
         log.debug(
-            'PHP setup %s %s' % (
-                'running' if status == Status.RUN else 'failed',
-                'with %s channel' % (channel_name) if status == Status.RUN else ''
-            )
-        )
+            'PHP setup %s %s' % ('running' if status == Status.RUN else
+                                 'failed', 'with %s channel' % (channel_name)
+                                 if status == Status.RUN else ''))
 
         return status
 
@@ -102,9 +101,7 @@ class Php(Module):
         # return original code.
         if self.session['shell_php']['stored_args'].get('minify', True):
             minified = utils.code.minify_php(command)
-            self.session['shell_php'][
-                        'stored_args'][
-                        'minify'] = bool(minified)
+            self.session['shell_php']['stored_args']['minify'] = bool(minified)
             command = minified if minified else command
 
         log.debug('PAYLOAD %s' % command)

@@ -3,20 +3,12 @@ from core.vectors import PhpCode
 
 
 class Procs(Module):
-
     """List running processes."""
 
     aliases = ['ps']
 
     def init(self):
-        self.register_info(
-            {
-                'author': [
-                    'paddlesteamer'
-                ],
-                'license': 'GPLv3'
-            }
-        )
+        self.register_info({'author': ['paddlesteamer'], 'license': 'GPLv3'})
 
     def run(self):
 
@@ -176,7 +168,3 @@ class Procs(Module):
 
             main();
         """).run()
-
-
-
-

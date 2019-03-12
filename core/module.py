@@ -184,7 +184,7 @@ class Module:
         # Setup() could has been stored additional args, so all the updated
         # stored arguments are applied to args
         stored_args = self.session[self.name]['stored_args']
-        for stored_arg_key, stored_arg_value in list(stored_args.items()):
+        for stored_arg_key, stored_arg_value in stored_args.items():
             if stored_arg_key is not None and stored_arg_value != self.args.get(
                     stored_arg_key):
                 self.args[stored_arg_key] = stored_arg_value
