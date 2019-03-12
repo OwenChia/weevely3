@@ -4,8 +4,8 @@ from core import modules
 from core import messages
 from core.loggers import log
 
-class Enum(Module):
 
+class Enum(Module):
     """Check existence and permissions of a list of paths."""
 
     def init(self):
@@ -20,13 +20,24 @@ class Enum(Module):
         )
 
         self.register_arguments([
-          { 'name' : 'paths', 'help' : 'One or more paths', 'nargs' : '*' },
-          { 'name' : '-lpath-list', 'help' : 'The local file containing the list of paths' },
-          { 'name' : '-print', 'help' : 'Print the paths not found too', 'action' : 'store_true', 'default' : False }
+          {
+              'name': 'paths',
+              'help': 'One or more paths',
+              'nargs': '*'
+          },
+          {
+              'name': '-lpath-list',
+              'help': 'The local file containing the list of paths'
+          },
+          {
+              'name': '-print',
+              'help': 'Print the paths not found too',
+              'action': 'store_true',
+              'default': False
+          }
         ])
 
     def run(self):
-
         paths = []
 
         lpath = self.args.get('lpath_list')
@@ -34,7 +45,7 @@ class Enum(Module):
 
             try:
                 paths = open(lpath, 'r').read().split('\n')
-            except Exception, e:
+            except Exception as e:
                 log.warning(
                   messages.generic.error_loading_file_s_s % (lpath, str(e)))
                 return
@@ -45,16 +56,16 @@ class Enum(Module):
 
         for path in paths:
 
-            result = ModuleExec( "file_check", [ path, "perms" ]).run()
+            result = ModuleExec("file_check", [path, "perms"]).run()
             if result or self.args.get('print'):
                 results[path] = result
 
         return results
 
-
     def print_result(self, result):
 
-        if not result: return
+        if not result:
+            return
 
         result_verbose = {}
 

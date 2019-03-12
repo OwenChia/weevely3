@@ -2,7 +2,10 @@ import random
 import string
 import itertools
 
-str2hex = lambda x: "\\x" + "\\x".join([hex(ord(c))[2:].zfill(2) for c in x])
+
+def str2hex(x):
+    return "\\x" + "\\x".join([hex(ord(c))[2:].zfill(2) for c in x])
+
 
 def randstr(n=4, fixed=True, charset=None):
 
@@ -13,9 +16,10 @@ def randstr(n=4, fixed=True, charset=None):
         n = random.randint(1, n)
 
     if not charset:
-        charset = string.letters + string.digits
+        charset = string.ascii_letters + string.digits
 
     return ''.join(random.choice(charset) for x in range(n))
+
 
 def divide(data, min_size, max_size, split_size):
     it = iter(data)
@@ -26,11 +30,13 @@ def divide(data, min_size, max_size, split_size):
         size -= s
     yield ''.join(it)
 
+
 def sxor(s1, s2):
-    return ''.join(
-        chr(ord(a) ^ ord(b))
-        for a, b in zip(s1, itertools.cycle(s2))
-    )
+    seen = []
+    for a, b in zip(s1, itertools.cycle(s2)):
+        seen.append(a ^ b)
+    return bytes(seen)
+
 
 def pollute(data, charset, frequency=0.3):
 
@@ -43,8 +49,9 @@ def pollute(data, charset, frequency=0.3):
 
     return str_encoded
 
+
 def chunks(l, n):
     """ Yield successive n-sized chunks from l.
     """
-    for i in xrange(0, len(l), n):
+    for i in range(0, len(l), n):
         yield l[i:i+n]

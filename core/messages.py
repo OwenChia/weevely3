@@ -1,5 +1,6 @@
 version = '3.7.0'
 
+
 class generic:
     file_s_not_found = "File '%s' not found"
     error_creating_file_s_s = "Error creating file '%s': %s"
@@ -22,6 +23,7 @@ class generic:
 
 """
 
+
 class sessions:
     set_module_s_s_s = '%s.%s = %s'
     set_s_s = '%s = %s'
@@ -30,10 +32,10 @@ class sessions:
     error_loading_sessions = 'Session loading error'
     error_session_s_not_modified = 'Error setting session variable \'%s\''
     connection_info = """<%!
-import urlparse
+from urllib import parse
 %><%
 if not host:
-    urlparsed = urlparse.urlparse(url)
+    urlparsed = parse.urlparse(url)
     if urlparsed and urlparsed.netloc:
         hostname = urlparsed.netloc
     else:
@@ -42,9 +44,11 @@ else:
     hostname = host
 %>${'%s@' % user if user else ''}${hostname}${':%s' % path if path and path != '.' else ''}"""
 
+
 class channels:
     error_loading_channel_s = 'Error loading channel \'%s\''
     error_proxy_format = 'Expected proxy URL format \'http|https|socks5|sock4://host:port\''
+
 
 class terminal:
     backdoor_unavailable = 'Backdoor communication failed, check URL availability and password'
@@ -72,6 +76,7 @@ following command replacements to simulate a unrestricted shell.
     set_usage = 'Set session variable (run :show to print). Usage:\n:set <variable> \'<value>\''
     unset_usage = 'Unset session variable (run :show to print). Usage:\n:unset <variable>'
 
+
 class stegareferrer:
     error_generating_id = 'Error generating id, payload too long?'
     error_password_hash = 'Error generating trigger, please use another password'
@@ -87,12 +92,14 @@ class vectors:
     wrong_condition_type = 'Wrong condition argument type, a callable function is required'
     wrong_store_name_type = 'Wrong argument type, a string with an argument name is required'
 
+
 class vectorlist:
     vector_s_triggers_an_exc = 'Vector \'%s\' execution triggers an exception'
 
+
 class module:
     error_setting_arguments_s = 'Error setting arguments: %s'
-    argument_s_must_be_a_vector  = 'Argument \'%s\' must be a vector name'
+    argument_s_must_be_a_vector = 'Argument \'%s\' must be a vector name'
     error_module_missing_description = 'Error, module description is missing'
     error_module_exec_error_s = 'Error, module execution triggered error \'%s\''
     error_init_method_required = 'Error, the init() method definition is required in Modules'
@@ -102,30 +109,37 @@ class module:
     running_the_alias_s = 'Shell interpreter unavailable, running the alias \'%s\''
     vector_s_not_support_arg_s_s = 'Vector \'%s\' does not support argument \'%s\' set to \'%s\''
 
+
 class module_file_cd:
     failed_directory_change_to_s = "Failed cd '%s': no such directory or permission denied"
     error_getting_ossep = "Error getting remote directory separator"
+
 
 class module_file_ls:
     failed_list_file_in_directory_s = "Failed list file in directory '%s': no such directory or permission denied"
     failed_list_file_in_directory_s_unknown = "Failed list file in directory '%s': unknown error"
 
+
 class module_file_download:
     failed_download_file = "File download failed, please check remote path and permissions"
     skipping_md5_check = "Skipping MD5 check, the file integrity can't be checked"
+
 
 class module_file_upload:
     error_content_lpath_required = "Error, argument 'lpath' or 'content' is required"
     failed_upload_file = "File upload failed, please check remote path and permissions"
     failed_md5_check = "Failed MD5 check, the integrity check is wrong or not available"
 
+
 class module_file_edit:
     unmodified_file = "File unmodified, skipping upload"
+
 
 class module_file_touch:
     error_invalid_timestamp_format = "Error, invalid timestamp format"
     error_source_timestamp_required = "Error, source timestamp is required."
     failed_touch_file = "File touch failed, please check remote path and permissions"
+
 
 class module_sql_console:
     unexpected_response = "Unexpected response"
@@ -133,18 +147,22 @@ class module_sql_console:
     no_data = "No data returned"
     missing_sql_trailer_s = 'Is the trailing comma missing at the end of the SQL statement \'%s\'?'
 
+
 class module_sql_dump:
     sql_dump_failed_check_credentials = "SQL dump failed, check credentials and DB availability"
     sql_dump_saved_s = "SQL dump saved to '%s'"
 
+
 class module_file_grep:
     failed_retrieve_info = "Failed retrieve file information, please check if the remote readable files exist"
+
 
 class module_file_upload2web:
     failed_retrieve_info = "Failed retrieve web root information"
     failed_resolve_path = "Failed resolve path, please check remote path and permissions"
     error_s_not_under_webroot_s = "Error, \'%s\' is not under the web root folder \'%s\'"
     failed_search_writable_starting_s = "Error searching writable folder under '%s'."
+
 
 class module_shell_php:
     error_404_remote_backdoor = 'The remote backdoor request triggers an error 404, check availability'
@@ -154,20 +172,24 @@ class module_shell_php:
     missing_php_trailer_s = 'Is the trailing comma missing at the end of the PHP code \'%s\'?'
     error_i_executing = 'The request triggers the error %i, please verify running code'
 
+
 class module_net_ifconfig:
     error_no_s_execution_result = 'Error, no \'%s\' execution result'
     error_parsing_s_execution_result = 'Error parsing \'%s\' execution result'
     error_interpeting_s_execution_result_s = 'Error interpreting \'%s\' execution result: \'%s\''
     failed_retrieve_info = "Failed retrieve ifconfig information"
 
+
 class module_backdoor_tcp:
     error_parsing_connect_s = 'Error parsing hostname, connect manually to the shell on port %s'
     error_connecting_to_s_s_s = 'Error connecting to %s:%s: %s'
+
 
 class module_backdoor_reversetcp:
     error_binding_socket_s = 'Error binding socket: \'%s\''
     error_timeout = 'Timeout error'
     reverse_shell_connected = 'Reverse shell connected, insert commands. Append semi-colon help to get the commands accepted.'
+
 
 class module_audit_phpconf:
     not_enabled = 'Not enabled'
@@ -196,8 +218,10 @@ class module_audit_phpconf:
     func_proc_execution = 'Process execution'
     func_proc_manipulation = 'Process manipulation'
 
+
 class module_net_curl:
     unexpected_response = 'Unexpected response, please check URL reachability'
+
 
 class module_net_proxy:
     proxy_starting_s_i = 'Starting HTTP/HTTPS proxy at \'http://%s:%i\''
@@ -205,19 +229,23 @@ class module_net_proxy:
     proxy_started_background = 'Proxy has been started in background and will shutdown at exit'
     proxy_started_foreground = 'Foreground proxy has been started, press Ctrl-C to stop it'
 
+
 class module_net_phpproxy:
     phpproxy_installed_to_s_browser_to_s = 'PHP proxy installed to \'%s\', browse \'%s\' with your browser'
     proxy_script_removed = 'The PHP proxy script will be removed at weevely exit'
     proxy_script_manually_remove_s = 'Remove manually the PHP proxy script \'%s\''
 
+
 class module_net_scan:
     unexpected_response = 'Unexpected response'
+
 
 class module_file_archive:
     archive_type_not_set = 'Archive type not set and file extension not supported'
     error_extracting_s_file_needed = 'Error extracting %s, first remote file argument must contain the output file path'
     error_extracting_s_folder_needed = 'Error extracting %s, first remote file argument must contain the output folder path'
     remote_path_check_failed = "Remote path check failed, please check if exists and is readable"
+
 
 class module_file_mount:
     httpfs_s_not_found = "HTTPfs binary '%s' not found, specify binary path or install it from 'https://github.com/cyrus-and/httpfs'"
@@ -237,16 +265,20 @@ Unmount it:
     httpfs_agent_removed = 'The PHP agent will be removed at weevely exit'
     httpfs_agent_manually_remove_s = 'Remove manually the PHP agent \'%s\''
 
+
 class module_shell_su:
     error_su_executing = 'Error executing commands with su'
 
+
 class module_shell_sh:
     error_sh_remote_shell = 'Error loading Sh remote shell'
+
 
 class generate:
     error_agent_template_s_s = 'Error with agent template \'%s\': %s'
     error_obfuscator_template_s_s = 'Error with obfuscator template \'%s\': %s'
     generated_backdoor_with_password_s_in_s_size_i = 'Generated \'%s\' with password \'%s\' of %i byte size.'
+
 
 class utils_code:
     minify_php_missing_binary = 'Missing PHP binary, skipping PHP code minify'
@@ -263,7 +295,8 @@ class module_audit_disablefunctionbypass:
     run_s_skip_reinstalling = 'Run console without reinstalling with \':audit_disablefunctionbypass -just-run %s\''
     requests_not_obfuscated = 'Type \'quit\' to return to weevely shell. Requests are not obfuscated'
     cgi_installed_remove_s_s = 'After usage, use \':file_rm\' to remove \'%s\' and \'%s\''
-    
+
+
 class module_backdoor_metasploit:
     msfvenom_s_not_found = "Msfvenom '%s' not found, specify with -msfvenom-path"
     error_payload_s_requires_lhost = 'Error reverse payload \'%s\' requires LHOST, specify with -lhost'

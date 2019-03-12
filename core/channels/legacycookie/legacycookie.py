@@ -1,12 +1,12 @@
 from core.loggers import dlog, log
 from core import config
 import re
-import urlparse
+import urllib.parse
 import random
 import utils
 import string
 import base64
-import urllib2
+import urllib.request, urllib.error, urllib.parse
 
 class LegacyCookie:
 
@@ -22,7 +22,7 @@ class LegacyCookie:
             re.DOTALL
         )
 
-        self.parsed = urlparse.urlparse(self.url)
+        self.parsed = urllib.parse.urlparse(self.url)
         self.data = None
 
         if not self.parsed.path:
@@ -46,11 +46,11 @@ class LegacyCookie:
         # Init additional headers list
         self.additional_headers = config.additional_headers
 
-    def send(self, original_payload, additional_handlers = []):
+    def send(self, original_payload, additional_handlers=[]):
 
-        payload = base64.b64encode(original_payload.strip())
+        payload = base64.b64encode(original_payload.strip().encode()).decode()
         length = len(payload)
-        third = length / 3
+        third = length // 3
         thirds = third * 2
 
         prefixes = self.default_prefixes[:]
@@ -63,21 +63,21 @@ class LegacyCookie:
             cookie_payload_string += (
                 prefixes.pop()
                 + '='
-                + utils.strings.randstr(16, False, string.letters + string.digits)
+                + utils.strings.randstr(16, False, string.ascii_letters + string.digits)
                 + '; '
             )
 
         # DO NOT fuzz with %, _ (\w on regexp keep _)
         payload = utils.strings.pollute(
-            data = payload,
-            charset = '#&*-/?@~'
+            data=payload,
+            charset='#&*-/?@~'
         )
 
         cookie_payload_string += prefixes.pop() + '=' + payload[:third] + '; '
         cookie_payload_string += prefixes.pop() + '=' + payload[third:thirds] + '; '
         cookie_payload_string += prefixes.pop() + '=' + payload[thirds:]
 
-        opener = urllib2.build_opener(*additional_handlers)
+        opener = urllib.request.build_opener(*additional_handlers)
 
         # When core.conf contains additional cookies, carefully merge
         # the new cookies and UA and add all the other headers

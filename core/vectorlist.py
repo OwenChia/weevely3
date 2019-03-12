@@ -20,6 +20,7 @@ from core import modules
 import utils
 from core import messages
 
+
 class VectorList(list):
 
     def __init__(self, session, module_name):
@@ -29,7 +30,8 @@ class VectorList(list):
 
         list.__init__(self)
 
-    def find_first_result(self, names = [], format_args = {}, condition = None, store_result = False, store_name = ''):
+    def find_first_result(self, names=[], format_args={},
+                          condition=None, store_result=False, store_name=''):
         """ Execute all the vectors and return the first result matching the given condition.
 
         Return the name and the result of the first vector execution response that satisfy
@@ -65,13 +67,15 @@ class VectorList(list):
         for vector in self:
 
             # Skip with wrong vectors
-            if not self._os_match(vector.target): continue
+            if not self._os_match(vector.target):
+                continue
 
             # Clean names filter from empty objects
-            names = [ n for n in names if n ]
+            names = [n for n in names if n]
 
             # Skip if names filter is passed but current vector is missing
-            if names and not any(n in vector.name for n in names): continue
+            if names and not any(n in vector.name for n in names):
+                continue
 
             # Add current vector name
             format_args['current_vector'] = vector.name
@@ -83,7 +87,9 @@ class VectorList(list):
             try:
                 condition_result = condition(result)
             except Exception as e:
-                import traceback; log.info(traceback.format_exc())
+                print(repr(e))
+                import traceback
+                log.info(traceback.format_exc())
                 log.debug(messages.vectorlist.vector_s_triggers_an_exc % vector.name)
 
                 condition_result = False
@@ -99,7 +105,7 @@ class VectorList(list):
 
         return None, None
 
-    def get_result(self, name, format_args = {}, store_result = False):
+    def get_result(self, name, format_args={}, store_result=False):
         """Execute one vector and return the result.
 
         Run the vector with specified name. Optionally store results.
@@ -130,8 +136,7 @@ class VectorList(list):
 
             return result
 
-
-    def get_results(self, names = [], format_args = {}, results_to_store = [ ]):
+    def get_results(self, names=[], format_args={}, results_to_store=[]):
         """Execute all the vectors and return the results.
 
         With unspecified names, execute all the vectors. Optionally store results.
@@ -154,16 +159,19 @@ class VectorList(list):
 
         for vector in self:
 
-            if not self._os_match(vector.target): continue
+            if not self._os_match(vector.target):
+                continue
 
-            if names and not any(x in vector.name for x in names): continue
+            if names and not any(x in vector.name for x in names):
+                continue
 
             # Add current vector name
             format_args['current_vector'] = vector.name
 
             response[vector.name] = vector.run(format_args)
 
-            if not any(x in vector.name for x in results_to_store): continue
+            if not any(x in vector.name for x in results_to_store):
+                continue
 
             self.session[self.module_name]['results'][vector.name] = response[vector.name]
 
@@ -175,7 +183,8 @@ class VectorList(list):
         os_string = self.session['system_info']['results'].get('os')
 
         # If os_string is not set, just return True and continue
-        if not os_string: return True
+        if not os_string:
+            return True
 
         os_current = Os.WIN if os_string.lower().startswith('win') else Os.NIX
 
@@ -198,4 +207,4 @@ class VectorList(list):
         Returns:
             List of strings. Contain vectors names.
         """
-        return [ v.name for v in self ]
+        return [v.name for v in self]

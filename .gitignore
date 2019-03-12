@@ -16,6 +16,7 @@ __pycache__/
 
 # Distribution / packaging
 .Python
+.env/
 env/
 bin/
 build/
@@ -44,3 +45,6 @@ coverage.xml
 
 # Translations
 *.mo
+
+# vim
+*.vim

@@ -24,6 +24,7 @@ import utils
 import ast
 import os
 
+
 class Status:
     """Represent the module statuses.
 
@@ -39,6 +40,7 @@ class Status:
     IDLE = 0
     RUN = 1
     FAIL = 2
+
 
 class Module:
 
@@ -67,8 +69,8 @@ class Module:
 
         # HelpParser is a slightly changed `ArgumentParser`
         self.argparser = argparsers.HelpParser(
-            prog = self.name,
-            description = self.__doc__
+            prog=self.name,
+            description=self.__doc__
         )
 
         # Arguments dictionary is initially empty
@@ -76,7 +78,7 @@ class Module:
 
         self.init()
 
-    def run_cmdline(self, line, cmd = ''):
+    def run_cmdline(self, line, cmd=''):
         """Execute the module from command line.
 
         Get command line string as argument. Called from terminal.
@@ -95,7 +97,8 @@ class Module:
         try:
             command = shlex.split(line)
         except Exception as e:
-            import traceback; log.debug(traceback.format_exc())
+            import traceback
+            log.debug(traceback.format_exc())
             log.warn(messages.generic.error_parsing_command_s % str(e))
             return
 
@@ -112,13 +115,14 @@ class Module:
             return
 
         except Exception as e:
-            import traceback; log.debug(traceback.format_exc())
+            import traceback
+            log.debug(traceback.format_exc())
             log.warn(messages.module.error_module_exec_error_s % str(e))
             return
 
         self.print_result(
             result[:-1] if (
-                isinstance(result, basestring) and
+                isinstance(result, str) and
                 result.endswith('\n')
             ) else result
         )
@@ -154,16 +158,19 @@ class Module:
         # The new arg must win over the stored one if:
         # new arg is not none and the value of the old one 
         # is not just the default value
-        
+
         for newarg_key, newarg_value in user_args.__dict__.items():
-                        
+
             # Pick the default argument of the current arg
-            default_value = next((action.default for action in self.argparser._actions if action.dest == newarg_key), None)
+            default_value = next((action.default
+                                  for action in self.argparser._actions
+                                  if action.dest == newarg_key),
+                                 None)
             stored_value = stored_args.get(newarg_key)
-                        
-            if newarg_value != None and newarg_value != default_value:
+
+            if newarg_value is not None and newarg_value != default_value:
                 self.args[newarg_key] = newarg_value
-            elif stored_value != None:
+            elif stored_value is not None:
                 self.args[newarg_key] = stored_value
             else:
                 self.args[newarg_key] = default_value
@@ -184,10 +191,9 @@ class Module:
         # Setup() could has been stored additional args, so all the updated
         # stored arguments are applied to args
         stored_args = self.session[self.name]['stored_args']
-        for stored_arg_key, stored_arg_value in stored_args.items():
-            if stored_arg_key != None and stored_arg_value != self.args.get(stored_arg_key):
+        for stored_arg_key, stored_arg_value in list(stored_args.items()):
+            if stored_arg_key is not None and stored_arg_value != self.args.get(stored_arg_key):
                 self.args[stored_arg_key] = stored_arg_value
-
 
         return self.run()
 
@@ -306,7 +312,7 @@ class Module:
         if not self.argparser.description:
             raise DevException(messages.module.error_module_missing_description)
 
-    def register_arguments(self, arguments = []):
+    def register_arguments(self, arguments=[]):
         """Register the module arguments.
 
         Register arguments to be added to the argparse parser.
@@ -333,7 +339,6 @@ class Module:
         except Exception as e:
             raise DevException(messages.module.error_setting_arguments_s % (e))
 
-
     def register_vectors(self, vectors):
         """Register the module vectors.
 
@@ -358,9 +363,10 @@ class Module:
 
         """
 
+        if isinstance(result, bytes):
+            result = result.decode()
         if result not in (None, ''):
             log.info(utils.prettify.tablify(result))
-
 
     def _store_result(self, field, value):
         """Store persistent module result.
@@ -375,7 +381,7 @@ class Module:
 
         self.session[self.name]['results'][field] = value
 
-    def _get_stored_result(self, field, module = None, default=None):
+    def _get_stored_result(self, field, module=None, default=None):
         """Get stored module result.
 
         Get the modle result stored in the session structure.
@@ -390,7 +396,6 @@ class Module:
         """
 
         if module is not None:
-            return self.session[module][
-                'results'].get(field, default)
+            return self.session[module]['results'].get(field, default)
         else:
             return self.session.get(field, default)

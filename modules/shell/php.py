@@ -7,6 +7,7 @@ from core.loggers import log
 import random
 import utils
 
+
 class Php(Module):
 
     """Execute PHP commands."""
@@ -23,17 +24,16 @@ class Php(Module):
         )
 
         self.register_arguments([
-          { 'name' : 'command', 'help' : 'PHP code wrapped in quotes and terminated by semi-comma', 'nargs' : '+' },
-          { 'name' : '-prefix-string', 'default' : '@error_reporting(0);' },
-          { 'name' : '-post_data' },
-          { 'name' : '-postfix-string', 'default' : '' },
+          {'name': 'command', 'help': 'PHP code wrapped in quotes and terminated by semi-comma', 'nargs': '+'},
+          {'name': '-prefix-string', 'default': '@error_reporting(0);'},
+          {'name': '-post_data'},
+          {'name': '-postfix-string', 'default': ''},
         ])
 
         self.channel = None
 
     def _check_interpreter(self, channel):
-
-        rand = str(random.randint(11111, 99999))
+        rand = str(random.randint(11111, 99999)).encode()
 
         command = 'echo(%s);' % rand
         response, code, error = channel.send(command)
@@ -46,22 +46,21 @@ class Php(Module):
 
         return status
 
-
     def setup(self):
         """Instauration of the PHP channel. Returns the module status."""
 
         # Try a single channel if is manually set, else
         # probe every the supported channel from config
         if self.session.get('channel'):
-            channels = [ self.session['channel'] ]
+            channels = [self.session['channel']]
         else:
             channels = config.channels
 
         for channel_name in channels:
 
             channel = Channel(
-                channel_name = channel_name,
-                session = self.session
+                channel_name=channel_name,
+                session=self.session
             )
 
             status = self._check_interpreter(channel)
@@ -85,14 +84,17 @@ class Php(Module):
 
         # This is an unusual slack setup at every execution
         # to check and eventually instance the proper channel
-        if self.session['shell_php'].get('status') != Status.RUN: self.setup()
+        if self.session['shell_php'].get('status') != Status.RUN:
+            self.setup()
 
-        cwd = self._get_stored_result('cwd', module = 'file_cd', default = '.')
+        cwd = self._get_stored_result('cwd', module='file_cd', default='.')
         chdir = '' if cwd == '.' else "chdir('%s');" % cwd
 
         # Compose command with cwd, pre_command, and post_command option.
-        self.args.update({ 'chdir' : chdir })
-        command = Template("""${chdir}${prefix_string}${ ' '.join(command) }${postfix_string}""", strict_undefined=True).render(**self.args)
+        self.args.update({'chdir': chdir})
+        command = Template(
+            """${chdir}${prefix_string}${ ' '.join(command) }${postfix_string}""",
+            strict_undefined=True).render(**self.args)
 
         # Minify PHP payload.
         #

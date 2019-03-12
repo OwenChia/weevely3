@@ -6,7 +6,7 @@ class Procs(Module):
 
     """List running processes."""
 
-    aliases = [ 'ps' ]
+    aliases = ['ps']
 
     def init(self):
         self.register_info(
@@ -17,7 +17,6 @@ class Procs(Module):
                 'license': 'GPLv3'
             }
         )
-
 
     def run(self):
 

@@ -5,6 +5,7 @@ import os
 loaded = {}
 loaded_tree = {}
 
+
 def load_modules(session):
     """ Load all modules """
 
@@ -32,19 +33,13 @@ def load_modules(session):
 
         # Init class, passing current terminal instance and module
         # name
-        module_class = getattr(module, classname)(
-                        session,
-                        '%s_%s' % (module_group, module_name),
-                        folder
-                       )
+        module_class = getattr(module, classname)(session, '%s_%s' % (module_group, module_name), folder)
 
-        loaded['%s_%s' %
-            (module_group, module_name)] = module_class
+        loaded['%s_%s' % (module_group, module_name)] = module_class
 
         # Keep the tree in a dict of strings in the form
         # `{ 'group1' : [ 'mod1', 'mod2' ] }`
         tree_group = loaded_tree.get(module_group)
         if not tree_group:
             loaded_tree[module_group] = []
-        loaded_tree[module_group].append('%s_%s' %
-                            (module_group, module_name))
+        loaded_tree[module_group].append('%s_%s' % (module_group, module_name))

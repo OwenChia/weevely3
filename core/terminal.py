@@ -14,6 +14,7 @@ import shlex
 import atexit
 import sys
 
+
 class CmdModules(cmd.Cmd):
 
     identchars = cmd.Cmd.identchars + ':'
@@ -40,7 +41,7 @@ class CmdModules(cmd.Cmd):
             stripped = len(origline) - len(line)
             begidx = readline.get_begidx() - stripped
             endidx = readline.get_endidx() - stripped
-            if begidx>0:
+            if begidx > 0:
                 cmd, args, foo = self.parseline(line)
                 if cmd == '':
                     compfunc = self.completedefault
@@ -73,8 +74,8 @@ class CmdModules(cmd.Cmd):
         if cmd is None:
             return self.default(line)
         self.lastcmd = line
-        if line == 'EOF' :
-            #self.lastcmd = ''
+        if line == 'EOF':
+            # self.lastcmd = ''
             raise EOFError()
         if cmd == '':
             return self.default(line)
@@ -94,36 +95,42 @@ class CmdModules(cmd.Cmd):
         data = []
         for module_group, names in modules.loaded_tree.items():
             for module_name in names:
-                data.append([ ':%s' % module_name, modules.loaded[module_name].info.get('description', '') ])
+                data.append([
+                    ':%s' % module_name, modules.loaded[module_name].info.get(
+                        'description', '')
+                ])
 
-        if data: log.info(utils.prettify.tablify(data, table_border = False))
+        if data:
+            log.info(utils.prettify.tablify(data, table_border=False))
 
     def _print_command_replacements(self):
 
         data = []
         for module_name, module in modules.loaded.items():
             if module.aliases:
-                data.append([ ', '.join(module.aliases), module_name ])
+                data.append([', '.join(module.aliases), module_name])
 
-        if data: log.info(utils.prettify.tablify(data, table_border = False))
+        if data:
+            log.info(utils.prettify.tablify(data, table_border=False))
 
     def do_help(self, arg, command):
         """Fixed help."""
 
-        print
+        print()
 
         self._print_modules()
 
-        if self.session['shell_sh']['status'] == Status.RUN: print; return
+        if self.session['shell_sh']['status'] == Status.RUN:
+            print()
+            return
 
         log.info(messages.terminal.help_no_shell)
         self._print_command_replacements()
 
-        print
+        print()
 
 
 class Terminal(CmdModules):
-
     """Weevely Terminal"""
 
     def __init__(self, session):
@@ -140,22 +147,19 @@ class Terminal(CmdModules):
         self._load_history()
 
         # Set a nice intro
-        self.intro = template.Template(
-            messages.terminal.welcome_to_s
-        ).render(
-            path = self.session.get('path'),
-            conn_info = session.get_connection_info(),
-            version = messages.version,
-            default_shell = self.session.get('default_shell')
-        )
+        self.intro = template.Template(messages.terminal.welcome_to_s).render(
+            path=self.session.get('path'),
+            conn_info=session.get_connection_info(),
+            version=messages.version,
+            default_shell=self.session.get('default_shell'))
 
         # Set default encoding utf8
-        reload(sys)
-        sys.setdefaultencoding('utf8')
+        # reload(sys)
+        # sys.setdefaultencoding('utf8')
+        # comment cause py3 dont have builtin reload function
 
     def emptyline(self):
         """Disable repetition of last command."""
-
         pass
 
     def precmd(self, line):
@@ -164,24 +168,15 @@ class Terminal(CmdModules):
         dlog.info('>>>> %s' % line)
 
         # Skip slack check is not a remote command
-        if not line or any(
-                        line.startswith(cmnd) for cmnd in (
-                            ':set',
-                            ':unset',
-                            ':show',
-                            ':help'
-                        )
-                    ):
+        _cmd = (':set', ':unset', ':show', ':help')
+        if not line or any(line.startswith(cmnd) for cmnd in _cmd):
             return line
-
 
         # Trigger the shell_sh/shell_php probe if
         # 1. We never tried to raise shells (shell_sh = IDLE)
         # 2. The basic intepreter shell_php is not running.
-        if (
-            self.session['shell_sh']['status'] == Status.IDLE or
-            self.session['shell_php']['status'] != Status.RUN
-            ):
+        if (self.session['shell_sh']['status'] == Status.IDLE
+                or self.session['shell_php']['status'] != Status.RUN):
 
             # We're implying that no shell is set, so reset default shell
             self.session['default_shell'] = None
@@ -193,14 +188,14 @@ class Terminal(CmdModules):
             # We imply that at every channel change (proxy, channel name)
             # this piece of code will be executed.
             try:
-                self.session['shell_sh']['status'] = modules.loaded['shell_sh'].setup()
+                self.session['shell_sh']['status'] = modules.loaded[
+                    'shell_sh'].setup()
             except ChannelException as e:
                 log.error(e.message)
                 return ''
 
         # Set default_shell in any case (could have been changed runtime)
         for shell in ('shell_sh', 'shell_php'):
-
             if self.session[shell]['status'] == Status.RUN:
                 self.session['default_shell'] = shell
                 break
@@ -212,14 +207,14 @@ class Terminal(CmdModules):
 
         # TODO: do not print this every loop
         # Print an introductory string with php shell
-        #if self.session.get('default_shell') == 'shell_php':
+        # if self.session.get('default_shell') == 'shell_php':
         #    log.info(messages.terminal.welcome_no_shell)
         #    self._print_command_replacements()
         #    log.info('\nweevely> %s' % line)
 
         # Get hostname and whoami if not set
         if not self.session['system_info']['results'].get('hostname'):
-            modules.loaded['system_info'].run_argv([ "-info", "hostname"])
+            modules.loaded['system_info'].run_argv(["-info", "hostname"])
 
         if not self.session['system_info']['results'].get('whoami'):
             modules.loaded['system_info'].run_argv(["-info", "whoami"])
@@ -246,27 +241,28 @@ class Terminal(CmdModules):
                 prompt = '?'
 
             # Build next prompt, last command could have changed the cwd
-            self.prompt = '%s %s ' % (self.session.get_connection_info(), prompt)
-
+            self.prompt = '%s %s ' % (self.session.get_connection_info(),
+                                      prompt)
 
     def default(self, line):
         """Default command line send."""
 
-        if not line: return
+        if not line:
+            return
 
         default_shell = self.session.get('default_shell')
 
-        if not default_shell: return
+        if not default_shell:
+            return
 
         result = modules.loaded[default_shell].run_argv([line])
 
-        if not result: return
+        if not result:
+            return
 
         # Clean trailing newline if existent to prettify output
-        result = result[:-1] if (
-                isinstance(result, basestring) and
-                result.endswith('\n')
-            ) else result
+        result = result[:-1] if (isinstance(result, str)
+                                 and result.endswith('\n')) else result
 
         log.info(result)
 
@@ -281,7 +277,8 @@ class Terminal(CmdModules):
         try:
             args = shlex.split(line)
         except Exception as e:
-            import traceback; log.debug(traceback.format_exc())
+            import traceback
+            log.debug(traceback.format_exc())
             log.warn(messages.generic.error_parsing_command_s % str(e))
 
         # Set the setting
@@ -310,25 +307,18 @@ class Terminal(CmdModules):
 
             # Set module.do_terminal_module() function as terminal
             # self.do_modulegroup_modulename()
-            setattr(
-                Terminal, 'do_%s' %
-                (module_name), module_class.run_cmdline)
+            setattr(Terminal, 'do_%s' % (module_name),
+                    module_class.run_cmdline)
 
             # Set module.do_alias() function as terminal
             # self.do_alias() for every defined `Module.aliases`.
             for alias in module_class.aliases:
-                setattr(
-                    Terminal, 'do_%s' %
-                    (alias), module_class.run_alias)
-                setattr(
-                    Terminal, 'help_%s' %
-                    (alias), module_class.help)
+                setattr(Terminal, 'do_%s' % (alias), module_class.run_alias)
+                setattr(Terminal, 'help_%s' % (alias), module_class.help)
 
             # Set module.help() function as terminal
             # self.help_modulegroup_modulename()
-            setattr(
-                Terminal, 'help_%s' %
-                (module_name), module_class.help)
+            setattr(Terminal, 'help_%s' % (module_name), module_class.help)
 
     def _load_history(self):
         """Load history file and register dump on exit."""
@@ -341,5 +331,4 @@ class Terminal(CmdModules):
             readline.read_history_file(config.history_path)
         except IOError:
             pass
-        atexit.register(readline.write_history_file,
-            config.history_path)
+        atexit.register(readline.write_history_file, config.history_path)
