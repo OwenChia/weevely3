@@ -1,7 +1,8 @@
 import prettytable
 import types
 
-def tablify(data, table_border = True):
+
+def tablify(data, table_border=True):
 
     # TODO: Check that is prettytable-0.7.2 that supports the
     # dynamic table columns number setting. Version 0.5 does not.
@@ -57,26 +58,22 @@ def tablify(data, table_border = True):
 
     return output
 
-def shorten(body, keep_header = 0, keep_trailer = 0):
+
+def shorten(body, keep_header=0, keep_trailer=0):
     """
     Smartly shorten a given string.
     """
 
     # Cut header
-    if (keep_header
-        and not keep_trailer
-        and len(body) > keep_header):
-            return '..%s' % body[:keep_header]
+    if (keep_header and not keep_trailer and len(body) > keep_header):
+        return '..%s' % body[:keep_header]
 
     # Cut footer
-    if (keep_trailer
-        and not keep_header
-        and len(body) > keep_trailer):
-            return '..%s' % body[-keep_header:]
+    if (keep_trailer and not keep_header and len(body) > keep_trailer):
+        return '..%s' % body[-keep_header:]
 
-    if (keep_header
-        and keep_trailer
-        and len(body) > keep_header + keep_trailer):
-            return '%s .. %s' % (body[:keep_header], body[-keep_trailer:])
+    if (keep_header and keep_trailer
+            and len(body) > keep_header + keep_trailer):
+        return '%s .. %s' % (body[:keep_header], body[-keep_trailer:])
 
     return body

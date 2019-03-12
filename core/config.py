@@ -10,7 +10,7 @@ sessions_ext = '.session'
 
 # Supported Channels
 channels = [
-    # Obfuscated channel inside POST requests introduced 
+    # Obfuscated channel inside POST requests introduced
     # in Weevely 3.6
     'ObfPost',
     # Steganographed cover channel inside Referrer

@@ -69,9 +69,7 @@ class Module:
 
         # HelpParser is a slightly changed `ArgumentParser`
         self.argparser = argparsers.HelpParser(
-            prog=self.name,
-            description=self.__doc__
-        )
+            prog=self.name, description=self.__doc__)
 
         # Arguments dictionary is initially empty
         self.args = {}
@@ -120,12 +118,8 @@ class Module:
             log.warn(messages.module.error_module_exec_error_s % str(e))
             return
 
-        self.print_result(
-            result[:-1] if (
-                isinstance(result, str) and
-                result.endswith('\n')
-            ) else result
-        )
+        self.print_result(result[:-1] if (
+            isinstance(result, str) and result.endswith('\n')) else result)
 
         # Data is returned for the testing of _cmdline calls
         return result
@@ -156,7 +150,7 @@ class Module:
             raise ArgparseError()
 
         # The new arg must win over the stored one if:
-        # new arg is not none and the value of the old one 
+        # new arg is not none and the value of the old one
         # is not just the default value
 
         for newarg_key, newarg_value in user_args.__dict__.items():
@@ -164,8 +158,7 @@ class Module:
             # Pick the default argument of the current arg
             default_value = next((action.default
                                   for action in self.argparser._actions
-                                  if action.dest == newarg_key),
-                                 None)
+                                  if action.dest == newarg_key), None)
             stored_value = stored_args.get(newarg_key)
 
             if newarg_value is not None and newarg_value != default_value:
@@ -192,7 +185,8 @@ class Module:
         # stored arguments are applied to args
         stored_args = self.session[self.name]['stored_args']
         for stored_arg_key, stored_arg_value in list(stored_args.items()):
-            if stored_arg_key is not None and stored_arg_value != self.args.get(stored_arg_key):
+            if stored_arg_key is not None and stored_arg_value != self.args.get(
+                    stored_arg_key):
                 self.args[stored_arg_key] = stored_arg_value
 
         return self.run()
@@ -220,9 +214,7 @@ class Module:
             log.debug(messages.module.running_the_alias_s % self.name)
             return self.run_cmdline(args)
         else:
-            modules.loaded['shell_sh'].run_cmdline(
-                '%s -- %s' % (cmd, args)
-            )
+            modules.loaded['shell_sh'].run_cmdline('%s -- %s' % (cmd, args))
 
     def init(self):
         """Module initialization.
@@ -281,7 +273,7 @@ class Module:
         Normally does not need to be overridden.
         """
 
-        self.run_argv([ '-h' ])
+        self.run_argv(['-h'])
 
     def register_info(self, info):
         """Register the module basic information.
@@ -301,16 +293,15 @@ class Module:
 
         self.info = info
 
-        self.info['description'] = (
-            info.get('description')
-            if info.get('description')
-            else self.__doc__.strip()
-        )
+        self.info['description'] = (info.get('description')
+                                    if info.get('description') else
+                                    self.__doc__.strip())
 
         self.argparser.description = self.info.get('description')
 
         if not self.argparser.description:
-            raise DevException(messages.module.error_module_missing_description)
+            raise DevException(
+                messages.module.error_module_missing_description)
 
     def register_arguments(self, arguments=[]):
         """Register the module arguments.
@@ -329,13 +320,12 @@ class Module:
                 # Handle if the argument registration is done before
                 # The vector registration. This should at least warn
                 if arg_opts.get('choices') == []:
-                    log.warn(messages.module.error_choices_s_s_empty % (self.name,
-                                                                        arg_name))
+                    log.warn(messages.module.error_choices_s_s_empty %
+                             (self.name, arg_name))
 
                 self.argparser.add_argument(
                     arg_opts['name'],
-                    **dict((k, v) for k, v in arg_opts.items() if k != 'name')
-                )
+                    **dict((k, v) for k, v in arg_opts.items() if k != 'name'))
         except Exception as e:
             raise DevException(messages.module.error_setting_arguments_s % (e))
 

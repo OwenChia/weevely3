@@ -22,7 +22,6 @@ from core import messages
 
 
 class VectorList(list):
-
     def __init__(self, session, module_name):
 
         self.session = session
@@ -30,8 +29,12 @@ class VectorList(list):
 
         list.__init__(self)
 
-    def find_first_result(self, names=[], format_args={},
-                          condition=None, store_result=False, store_name=''):
+    def find_first_result(self,
+                          names=[],
+                          format_args={},
+                          condition=None,
+                          store_result=False,
+                          store_name=''):
         """ Execute all the vectors and return the first result matching the given condition.
 
         Return the name and the result of the first vector execution response that satisfy
@@ -90,16 +93,19 @@ class VectorList(list):
                 print(repr(e))
                 import traceback
                 log.info(traceback.format_exc())
-                log.debug(messages.vectorlist.vector_s_triggers_an_exc % vector.name)
+                log.debug(
+                    messages.vectorlist.vector_s_triggers_an_exc % vector.name)
 
                 condition_result = False
 
             # Eventually store result or vector name
             if condition_result:
                 if store_result:
-                    self.session[self.module_name]['results'][vector.name] = result
+                    self.session[self.module_name]['results'][vector.
+                                                              name] = result
                 if store_name:
-                    self.session[self.module_name]['stored_args'][store_name] = vector.name
+                    self.session[self.module_name]['stored_args'][
+                        store_name] = vector.name
 
                 return vector.name, result
 
@@ -173,7 +179,8 @@ class VectorList(list):
             if not any(x in vector.name for x in results_to_store):
                 continue
 
-            self.session[self.module_name]['results'][vector.name] = response[vector.name]
+            self.session[self.module_name]['results'][vector.name] = response[
+                vector.name]
 
         return response
 

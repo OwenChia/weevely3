@@ -37,7 +37,6 @@ class Os:
 
 
 class ModuleExec:
-
     """
     This vector contains commands to execute other modules.
 
@@ -56,8 +55,13 @@ class ModuleExec:
 
     """
 
-    def __init__(self, module, arguments, name='',
-                 target=0, postprocess=None, background=False):
+    def __init__(self,
+                 module,
+                 arguments,
+                 name='',
+                 target=0,
+                 postprocess=None,
+                 background=False):
 
         self.name = name if name else utils.strings.randstr()
 
@@ -120,7 +124,8 @@ class ModuleExec:
         # The background argument is set at vector init in order
         # to threadify vectors also if called by VectorList methods.
         if self.background:
-            _thread.start_new_thread(modules.loaded[self.module].run_argv, (formatted, ))
+            _thread.start_new_thread(modules.loaded[self.module].run_argv,
+                                     (formatted, ))
             result = None
         else:
             result = modules.loaded[self.module].run_argv(formatted)
@@ -151,7 +156,8 @@ class ModuleExec:
 
         """
 
-        result = modules.loaded[self.module].session[self.module]['results'].get(result_name)
+        result = modules.loaded[self.module].session[
+            self.module]['results'].get(result_name)
 
         if isinstance(result, bytes):
             result = result.decode()
@@ -163,7 +169,6 @@ class ModuleExec:
 
 
 class PhpCode(ModuleExec):
-
     """This vector contains PHP code.
 
     The PHP code is executed via the module `shell_php`. Inherit `ModuleExec`.
@@ -182,8 +187,13 @@ class PhpCode(ModuleExec):
         background (bool): Execute in a separate thread on `run()`
     """
 
-    def __init__(self, payload, name=None, target=0,
-                 postprocess=None, arguments=[], background=False):
+    def __init__(self,
+                 payload,
+                 name=None,
+                 target=0,
+                 postprocess=None,
+                 arguments=[],
+                 background=False):
 
         if not isinstance(payload, str):
             raise DevException(messages.vectors.wrong_payload_type)
@@ -195,8 +205,7 @@ class PhpCode(ModuleExec):
             name=name,
             target=target,
             postprocess=postprocess,
-            background=background
-        )
+            background=background)
 
     def format(self, values):
         """Format the payload.
@@ -212,10 +221,7 @@ class PhpCode(ModuleExec):
 
         """
 
-        return [
-                    Template(arg).render(**values)
-                    for arg in self.arguments
-                ]
+        return [Template(arg).render(**values) for arg in self.arguments]
 
 
 class PhpFile(PhpCode):
@@ -238,8 +244,13 @@ class PhpFile(PhpCode):
         background (bool): Execute in a separate thread on `run()`
     """
 
-    def __init__(self, payload_path, name=None, target=0,
-                 postprocess=None, arguments=[], background=False):
+    def __init__(self,
+                 payload_path,
+                 name=None,
+                 target=0,
+                 postprocess=None,
+                 arguments=[],
+                 background=False):
 
         if not isinstance(payload_path, str):
             raise DevException(messages.vectors.wrong_payload_type)
@@ -247,7 +258,8 @@ class PhpFile(PhpCode):
         try:
             payload = open(payload_path, 'r').read()
         except Exception as e:
-            raise DevException(messages.generic.error_loading_file_s_s % (payload_path, e))
+            raise DevException(
+                messages.generic.error_loading_file_s_s % (payload_path, e))
 
         self.folder, self.name = os.path.split(payload_path)
 
@@ -258,8 +270,7 @@ class PhpFile(PhpCode):
             name=name,
             target=target,
             postprocess=postprocess,
-            background=background
-        )
+            background=background)
 
     def format(self, values):
         """Format the payload.
@@ -278,15 +289,14 @@ class PhpFile(PhpCode):
         """
 
         return [
-                 Template(text=arg,
-                          lookup=TemplateLookup(directories=[self.folder]),
-                          ).render(**values)
-                 for arg in self.arguments
+            Template(
+                text=arg,
+                lookup=TemplateLookup(directories=[self.folder]),
+            ).render(**values) for arg in self.arguments
         ]
 
 
 class ShellCmd(PhpCode):
-
     """This vector contains a shell command.
 
     The shell command is executed via the module `shell_sh`. Inherit `ModuleExec`.
@@ -305,7 +315,13 @@ class ShellCmd(PhpCode):
         background (bool): Execute in a separate thread on `run()`
     """
 
-    def __init__(self, payload, name=None, target=0, postprocess=None, arguments=[], background=False):
+    def __init__(self,
+                 payload,
+                 name=None,
+                 target=0,
+                 postprocess=None,
+                 arguments=[],
+                 background=False):
 
         if not isinstance(payload, str):
             raise DevException(messages.vectors.wrong_payload_type)
@@ -317,5 +333,4 @@ class ShellCmd(PhpCode):
             name=name,
             target=target,
             postprocess=postprocess,
-            background=background
-        )
+            background=background)

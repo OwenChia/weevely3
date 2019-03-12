@@ -6,6 +6,7 @@ import subprocess
 # Minify PHP code removing white spaces and comments.
 # Returns None in case of errors.
 
+
 def minify_php(original_code):
 
     php_binary = spawn.find_executable('php')
@@ -14,9 +15,10 @@ def minify_php(original_code):
         return None
 
     try:
-        output = subprocess.check_output(
-            [
-            php_binary, '-r', """function is_label($str) {
+        output = subprocess.check_output([
+            php_binary,
+            '-r',
+            """function is_label($str) {
 return preg_match('~[a-zA-Z_\x7f-\xff][a-zA-Z0-9_\x7f-\xff]*+~',$str);
 }
 
@@ -61,7 +63,8 @@ print(get_tiny($d));
         ])
 
     except Exception as e:
-        import traceback; log.debug(traceback.format_exc())
+        import traceback
+        log.debug(traceback.format_exc())
         log.debug(messages.utils_code.minify_php_error_minifying)
         return None
 

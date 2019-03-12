@@ -13,26 +13,15 @@ import atexit
 import ast
 import pprint
 
-print_filters = (
-    'debug',
-    'channel',
-    'proxy'
-)
+print_filters = ('debug', 'channel', 'proxy')
 
-set_filters = (
-    'debug',
-    'channel',
-    'proxy'
-)
+set_filters = ('debug', 'channel', 'proxy')
 
 
 class Session(dict):
     def _session_save_atexit(self):
         yaml.dump(
-            dict(self),
-            open(self['path'], 'w'),
-            default_flow_style=False
-        )
+            dict(self), open(self['path'], 'w'), default_flow_style=False)
 
     def print_to_user(self, module_filter=''):
 
@@ -44,11 +33,14 @@ class Session(dict):
 
                 # Is a module, print all the storable stored_arguments
                 for argument, arg_value in list(mod_args.items()):
-                    if not module_filter or ("%s.%s" % (mod_name, argument)).startswith(module_filter):
-                        log.info(messages.sessions.set_module_s_s_s % (mod_name, argument, arg_value))
+                    if not module_filter or ("%s.%s" % (mod_name, argument)
+                                             ).startswith(module_filter):
+                        log.info(messages.sessions.set_module_s_s_s %
+                                 (mod_name, argument, arg_value))
             else:
                 # If is not a module, just print if matches with print_filters
-                if any(f for f in print_filters if f == mod_name and f.startswith(module_filter)):
+                if any(f for f in print_filters
+                       if f == mod_name and f.startswith(module_filter)):
                     log.info(messages.sessions.set_s_s % (mod_name, mod_value))
 
     def get_connection_info(self):
@@ -118,14 +110,17 @@ class Session(dict):
         if module_argument.count('.') == 1:
             module_name, arg_name = module_argument.split('.')
             if arg_name not in self[module_name]['stored_args']:
-                log.warn(messages.sessions.error_session_s_not_modified % ('%s.%s' % (module_name, arg_name)))
+                log.warn(messages.sessions.error_session_s_not_modified %
+                         ('%s.%s' % (module_name, arg_name)))
             else:
                 del self[module_name]['stored_args'][arg_name]
-                log.info(messages.sessions.unset_module_s_s % (module_name, arg_name))
+                log.info(messages.sessions.unset_module_s_s % (module_name,
+                                                               arg_name))
         else:
             module_name = module_argument
             if module_name not in self and module_name not in set_filters:
-                log.warn(messages.sessions.error_session_s_not_modified % (module_name))
+                log.warn(messages.sessions.error_session_s_not_modified %
+                         (module_name))
             else:
                 self[module_name] = None
                 log.info(messages.sessions.unset_s % (module_name))
@@ -156,11 +151,13 @@ class Session(dict):
             # Should be OK to set whethever variable we want
             # and which will eventually be used by a module.
             self[module_name]['stored_args'][arg_name] = value
-            log.info(messages.sessions.set_module_s_s_s % (module_name, arg_name, value))
+            log.info(messages.sessions.set_module_s_s_s % (module_name,
+                                                           arg_name, value))
         else:
             module_name = module_argument
             if module_name not in self and module_name not in set_filters:
-                log.warn(messages.sessions.error_session_s_not_modified % (module_name))
+                log.warn(messages.sessions.error_session_s_not_modified %
+                         (module_name))
             else:
                 self[module_name] = value
                 log.info(messages.sessions.set_s_s % (module_name, value))
@@ -172,8 +169,7 @@ class SessionFile(Session):
             sessiondb = yaml.load(open(dbpath, 'r').read())
         except Exception as e:
             log.warn(
-                messages.generic.error_loading_file_s_s %
-                (dbpath, str(e)))
+                messages.generic.error_loading_file_s_s % (dbpath, str(e)))
             raise FatalException(messages.sessions.error_loading_sessions)
 
         if sessiondb and isinstance(sessiondb, dict):
@@ -188,13 +184,13 @@ class SessionFile(Session):
                 self.load_session(sessiondb)
                 return
 
-        log.warn(messages.generic.error_loading_file_s_s % (dbpath, 'no url or password'))
+        log.warn(messages.generic.error_loading_file_s_s %
+                 (dbpath, 'no url or password'))
 
         raise FatalException(messages.sessions.error_loading_sessions)
 
 
 class SessionURL(Session):
-
     def __init__(self, url, password, volatile=False):
 
         if not os.path.isdir(sessions_path):
@@ -206,17 +202,20 @@ class SessionURL(Session):
             raise FatalException(messages.generic.error_url_format)
 
         hostfolder = os.path.join(sessions_path, hostname)
-        dbname = os.path.splitext(os.path.basename(urllib.parse.urlsplit(url).path))[0]
+        dbname = os.path.splitext(
+            os.path.basename(urllib.parse.urlsplit(url).path))[0]
 
         # Check if session already exists
-        sessions_available = glob.glob(os.path.join(hostfolder, '*%s' % sessions_ext))
+        sessions_available = glob.glob(
+            os.path.join(hostfolder, '*%s' % sessions_ext))
 
         for dbpath in sessions_available:
 
             try:
                 sessiondb = yaml.load(open(dbpath, 'r').read())
             except Exception as e:
-                log.warn(messages.generic.error_loading_file_s_s % (dbpath, str(e)))
+                log.warn(
+                    messages.generic.error_loading_file_s_s % (dbpath, str(e)))
 
             if sessiondb and isinstance(sessiondb, dict):
 
@@ -224,7 +223,8 @@ class SessionURL(Session):
                 saved_password = sessiondb.get('password')
 
                 if not saved_url or not saved_password:
-                    log.warn(messages.generic.error_loading_file_s_s % (dbpath, 'no url or password'))
+                    log.warn(messages.generic.error_loading_file_s_s %
+                             (dbpath, 'no url or password'))
 
                 if saved_url == url and saved_password == password:
 
@@ -240,7 +240,8 @@ class SessionURL(Session):
         index = 0
 
         while True:
-            dbpath = os.path.join(hostfolder, '%s_%i%s' % (dbname, index, sessions_ext))
+            dbpath = os.path.join(hostfolder,
+                                  '%s_%i%s' % (dbname, index, sessions_ext))
             if not os.path.isdir(hostfolder):
                 os.makedirs(hostfolder)
 

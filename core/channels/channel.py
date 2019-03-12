@@ -17,11 +17,10 @@ url_dissector = re.compile(
     r'\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3})'  # ...or ip
     r':(\d+)?'  # optional port
     r'(?:/?|[/?]\S+)$',
-    re.IGNORECASE
-)
+    re.IGNORECASE)
+
 
 class Channel:
-
     def __init__(self, channel_name, session):
         """
         Import and instanciate dynamically the channel.
@@ -35,29 +34,26 @@ class Channel:
         try:
             # Import module
             module = __import__(
-                'core.channels.%s.%s' %
-                (module_name, module_name), fromlist=["*"])
+                'core.channels.%s.%s' % (module_name, module_name),
+                fromlist=["*"])
 
             # Import object
             channel_object = getattr(module, channel_name)
         except:
-            raise ChannelException(messages.channels.error_loading_channel_s % (channel_name))
+            raise ChannelException(
+                messages.channels.error_loading_channel_s % (channel_name))
 
         self.session = session
 
         # Create channel instance
-        self.channel_loaded = channel_object(
-            self.session['url'],
-            self.session['password']
-        )
+        self.channel_loaded = channel_object(self.session['url'],
+                                             self.session['password'])
 
         self.channel_name = channel_name
 
     def _get_proxy(self):
 
-        url_dissected = url_dissector.findall(
-            self.session['proxy']
-        )
+        url_dissected = url_dissector.findall(self.session['proxy'])
 
         if url_dissected and len(url_dissected[0]) == 3:
             protocol, host, port = url_dissected[0]
@@ -79,12 +75,7 @@ class Channel:
 
             if protocol and host and port:
                 handlers.append(
-                    sockshandler.SocksiPyHandler(
-                        protocol,
-                        host,
-                        port
-                    )
-                )
+                    sockshandler.SocksiPyHandler(protocol, host, port))
             else:
                 raise ChannelException(messages.channels.error_proxy_format)
 
@@ -92,7 +83,7 @@ class Channel:
         ctx = ssl.create_default_context()
         ctx.check_hostname = False
         ctx.verify_mode = ssl.CERT_NONE
-        
+
         handlers.append(urllib.request.HTTPSHandler(context=ctx))
 
         return handlers
@@ -106,10 +97,8 @@ class Channel:
         human_error = ''
 
         try:
-            response = self.channel_loaded.send(
-                payload,
-                self._additional_handlers()
-            )
+            response = self.channel_loaded.send(payload,
+                                                self._additional_handlers())
         except socks.ProxyError as e:
             if e.socket_err and e.socket_err.errno:
                 code = e.socket_err.errno
@@ -142,14 +131,11 @@ class Channel:
             dlog.info('RESPONSE: %s' % repr(response))
         else:
             command_last_chars = utils.prettify.shorten(
-                                    payload.rstrip(),
-                                    keep_trailer = 10
-                                )
-            if (
-                command_last_chars and
-                command_last_chars[-1] not in ( ';', '}' )
-                ):
-                log.warn(messages.module_shell_php.missing_php_trailer_s % command_last_chars)
+                payload.rstrip(), keep_trailer=10)
+            if (command_last_chars
+                    and command_last_chars[-1] not in (';', '}')):
+                log.warn(messages.module_shell_php.missing_php_trailer_s %
+                         command_last_chars)
 
         if error or human_error:
             log.debug('[ERR] %s [%s]' % (error, code))
