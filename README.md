@@ -3,7 +3,6 @@ Weevely
 
 **[WIP] Py3k port**
 
-[![Build Status](https://travis-ci.org/epinna/weevely3.svg?branch=master)](https://travis-ci.org/epinna/weevely3)
 
 ## Name
 
