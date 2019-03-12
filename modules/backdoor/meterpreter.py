@@ -40,17 +40,13 @@ class Meterpreter(Module):
                 'default': '4444'
             },
             {
-                'name':
-                '-rpath',
-                'help':
-                'Upload non PHP payloads in the first writable folder starting from rpath',
-                'default':
-                '.'
+                'name': '-rpath',
+                'help': 'Upload non PHP payloads in the first writable folder starting from rpath',
+                'default': '.'
             },
         ])
 
     def run(self):
-
         # Check msfvenom existance
         msvenom_path = spawn.find_executable(self.args['msfvenom_path'])
 
@@ -120,7 +116,6 @@ class Meterpreter(Module):
 
         if self.args['payload'].startswith('php/'):
             # If PHP payload, just run it
-
             PhpCode(agent, background=True).run()
         else:
 

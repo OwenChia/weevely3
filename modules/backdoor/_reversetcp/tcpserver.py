@@ -17,7 +17,8 @@ class TcpServer:
 
         self.connect_socket()
 
-        if not self.socket: return
+        if not self.socket:
+            return
 
         self.forward_data()
 
@@ -32,7 +33,7 @@ class TcpServer:
             try:
                 server.setsockopt(socket.SOL_SOCKET, socket.TCP_NODELAY, 1)
             except socket.error:
-                #log.debug("Warning: unable to set TCP_NODELAY...")
+                log.debug("Warning: unable to set TCP_NODELAY...")
                 pass
 
             try:
@@ -54,7 +55,6 @@ class TcpServer:
                 raise
 
     def forward_data(self):
-
         log.warn(messages.module_backdoor_reversetcp.reverse_shell_connected)
 
         self.socket.setblocking(0)
@@ -66,22 +66,22 @@ class TcpServer:
             try:
                 buffer = self.socket.recv(100)
                 while (buffer != ''):
-
                     self.socket_state = True
 
-                    sys.stdout.write(buffer)
+                    sys.stdout.write(buffer.decode())
                     sys.stdout.flush()
                     buffer = self.socket.recv(100)
-                if (buffer == ''):
+                if (buffer == b''):
                     return
             except socket.error:
                 pass
-            while (1):
+
+            while True:
                 r, w, e = select.select([sys.stdin], [], [], 0)
                 if (len(r) == 0):
                     break
                 c = sys.stdin.read(1)
                 if (c == ''):
                     return
-                if (self.socket.sendall(c) != None):
+                if (self.socket.sendall(c.encode()) is not None):
                     return
