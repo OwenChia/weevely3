@@ -8,6 +8,7 @@ import string
 import base64
 import urllib.request, urllib.error, urllib.parse
 
+
 class LegacyCookie:
 
     def __init__(self, url, password):
@@ -15,12 +16,7 @@ class LegacyCookie:
         self.url = url
         self.password = password
         self.extractor = re.compile(
-            "<%s>(.*)</%s>" % (
-                self.password[2:],
-                self.password[2:]
-            ),
-            re.DOTALL
-        )
+            "<%s>(.*)</%s>" % (self.password[2:], self.password[2:]), re.DOTALL)
 
         self.parsed = urllib.parse.urlparse(self.url)
         self.data = None
@@ -28,14 +24,12 @@ class LegacyCookie:
         if not self.parsed.path:
             self.query = self.parsed.netloc.replace('/', ' ')
         else:
-            self.query = ''.join(
-                    self.parsed.path.split('.')[:-1]
-                ).replace('/', ' ')
+            self.query = ''.join(self.parsed.path.split('.')[:-1]).replace(
+                '/', ' ')
 
         self.default_prefixes = [
-            "ID", "SID", "APISID",
-            "USRID", "SESSID", "SESS",
-            "SSID", "USR", "PREF"
+            "ID", "SID", "APISID", "USRID", "SESSID", "SESS", "SSID", "USR",
+            "PREF"
         ]
 
         random.shuffle(self.default_prefixes)
@@ -61,20 +55,15 @@ class LegacyCookie:
             if random.random() > 0.5:
                 break
             cookie_payload_string += (
-                prefixes.pop()
-                + '='
-                + utils.strings.randstr(16, False, string.ascii_letters + string.digits)
-                + '; '
-            )
+                prefixes.pop() + '=' + utils.strings.randstr(
+                    16, False, string.ascii_letters + string.digits) + '; ')
 
         # DO NOT fuzz with %, _ (\w on regexp keep _)
-        payload = utils.strings.pollute(
-            data=payload,
-            charset='#&*-/?@~'
-        )
+        payload = utils.strings.pollute(data=payload, charset='#&*-/?@~')
 
         cookie_payload_string += prefixes.pop() + '=' + payload[:third] + '; '
-        cookie_payload_string += prefixes.pop() + '=' + payload[third:thirds] + '; '
+        cookie_payload_string += prefixes.pop(
+        ) + '=' + payload[third:thirds] + '; '
         cookie_payload_string += prefixes.pop() + '=' + payload[thirds:]
 
         opener = urllib.request.build_opener(*additional_handlers)
@@ -92,35 +81,24 @@ class LegacyCookie:
             else:
                 additional_headers.append(h)
 
-
         additional_headers.append(
             ('User-Agent',
-                (additional_ua if additional_ua else random.choice(self.agents))
-            )
-        )
+             (additional_ua if additional_ua else random.choice(self.agents))))
 
         # If user cookies are specified, insert them between the first
         # (the trigger) and the lastest three (the splitted payload)
         additional_headers.append(
-            ('Cookie', '%s=%s;%s %s' % (
-                            prefixes.pop(),
-                            self.password[:2],
-                            additional_cookie if additional_cookie else '',
-                            cookie_payload_string
-                        )
-            )
-        )
+            ('Cookie',
+             '%s=%s;%s %s' % (prefixes.pop(), self.password[:2],
+                              additional_cookie if additional_cookie else '',
+                              cookie_payload_string)))
 
-        opener.addheaders  = additional_headers
-        dlog.debug(
-            '[H]\n%s' %
-            ('\n'.join('> %s: %s' % (h[0], h[1]) for h in additional_headers))
-        )
+        opener.addheaders = additional_headers
+        dlog.debug('[H]\n%s' % ('\n'.join(
+            '> %s: %s' % (h[0], h[1]) for h in additional_headers)))
 
-        url = (
-            self.url if not config.add_random_param_nocache
-            else utils.http.add_random_url_param(self.url)
-        )
+        url = (self.url if not config.add_random_param_nocache else
+               utils.http.add_random_url_param(self.url))
 
         response = opener.open(url).read()
 

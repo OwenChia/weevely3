@@ -178,8 +178,8 @@ class Terminal(CmdModules):
         # Trigger the shell_sh/shell_php probe if
         # 1. We never tried to raise shells (shell_sh = IDLE)
         # 2. The basic intepreter shell_php is not running.
-        if (self.session['shell_sh']['status'] == Status.IDLE
-                or self.session['shell_php']['status'] != Status.RUN):
+        if (self.session['shell_sh']['status'] == Status.IDLE or
+                self.session['shell_php']['status'] != Status.RUN):
 
             # We're implying that no shell is set, so reset default shell
             self.session['default_shell'] = None
@@ -264,8 +264,8 @@ class Terminal(CmdModules):
             return
 
         # Clean trailing newline if existent to prettify output
-        result = result[:-1] if (isinstance(result, str)
-                                 and result.endswith('\n')) else result
+        result = result[:-1] if (isinstance(result, str) and
+                                 result.endswith('\n')) else result
 
         log.info(result)
 
@@ -310,8 +310,7 @@ class Terminal(CmdModules):
 
             # Set module.do_terminal_module() function as terminal
             # self.do_modulegroup_modulename()
-            setattr(Terminal, 'do_%s' % (module_name),
-                    module_class.run_cmdline)
+            setattr(Terminal, 'do_%s' % (module_name), module_class.run_cmdline)
 
             # Set module.do_alias() function as terminal
             # self.do_alias() for every defined `Module.aliases`.

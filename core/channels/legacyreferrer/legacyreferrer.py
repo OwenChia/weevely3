@@ -8,6 +8,7 @@ import string
 import base64
 import urllib.request, urllib.error, urllib.parse
 
+
 class LegacyReferrer:
 
     def __init__(self, url, password):
@@ -15,12 +16,7 @@ class LegacyReferrer:
         self.url = url
         self.password = password
         self.extractor = re.compile(
-            "<%s>(.*)</%s>" % (
-                self.password[2:],
-                self.password[2:]
-            ),
-            re.DOTALL
-        )
+            "<%s>(.*)</%s>" % (self.password[2:], self.password[2:]), re.DOTALL)
 
         self.parsed = urllib.parse.urlparse(self.url)
         self.data = None
@@ -28,9 +24,8 @@ class LegacyReferrer:
         if not self.parsed.path:
             self.query = self.parsed.netloc.replace('/', ' ')
         else:
-            self.query = ''.join(
-                    self.parsed.path.split('.')[:-1]
-                ).replace('/', ' ')
+            self.query = ''.join(self.parsed.path.split('.')[:-1]).replace(
+                '/', ' ')
 
         # Load agents
         self.agents = utils.http.load_all_agents()
@@ -38,7 +33,7 @@ class LegacyReferrer:
         # Init additional headers list
         self.additional_headers = config.additional_headers
 
-    def send(self, original_payload, additional_handlers = []):
+    def send(self, original_payload, additional_handlers=[]):
 
         payload = base64.b64encode(original_payload.strip().encode()).decode()
         length = len(payload)
@@ -46,13 +41,8 @@ class LegacyReferrer:
         thirds = third * 2
 
         referer = "http://www.google.com/url?sa=%s&source=web&ct=7&url=%s&rct=j&q=%s&ei=%s&usg=%s&sig2=%s" % (
-            self.password[:2],
-            urllib.parse.quote(self.url),
-            self.query.strip(),
-            payload[:third],
-            payload[ third:thirds],
-            payload[thirds:]
-        )
+            self.password[:2], urllib.parse.quote(self.url), self.query.strip(),
+            payload[:third], payload[third:thirds], payload[thirds:])
 
         opener = urllib.request.build_opener(*additional_handlers)
 
@@ -69,19 +59,15 @@ class LegacyReferrer:
                 additional_headers.append(h)
 
         opener.addheaders = [
-            ('User-Agent', (additional_ua if additional_ua else random.choice(self.agents))),
+            ('User-Agent',
+             (additional_ua if additional_ua else random.choice(self.agents))),
             ('Referer', referer),
         ] + additional_headers
 
-        dlog.debug(
-            '[R] %s' %
-            (referer)
-        )
+        dlog.debug('[R] %s' % (referer))
 
-        url = (
-            self.url if not config.add_random_param_nocache
-            else utils.http.add_random_url_param(self.url)
-        )
+        url = (self.url if not config.add_random_param_nocache else
+               utils.http.add_random_url_param(self.url))
 
         response = opener.open(url).read()
 

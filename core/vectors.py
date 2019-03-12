@@ -125,7 +125,7 @@ class ModuleExec:
         # to threadify vectors also if called by VectorList methods.
         if self.background:
             _thread.start_new_thread(modules.loaded[self.module].run_argv,
-                                     (formatted, ))
+                                     (formatted,))
             result = None
         else:
             result = modules.loaded[self.module].run_argv(formatted)

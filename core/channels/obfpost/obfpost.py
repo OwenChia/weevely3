@@ -17,6 +17,7 @@ APPEND = utils.strings.randstr(16, charset=string.printable).encode()
 
 
 class ObfPost:
+
     def __init__(self, url, password):
         '''
         Generate the 8 char long main key. Is shared with the server and
@@ -32,8 +33,8 @@ class ObfPost:
         self.url_base = '%s://%s' % (url_parsed.scheme, url_parsed.netloc)
 
         # init regexp for the returning data
-        self.re_response = re.compile(
-            b"%s(.*)%s" % (self.header, self.trailer), re.DOTALL)
+        self.re_response = re.compile(b"%s(.*)%s" % (self.header, self.trailer),
+                                      re.DOTALL)
         self.re_debug = re.compile(
             b"%sDEBUG(.*?)%sDEBUG" % (self.header, self.trailer), re.DOTALL)
 
@@ -49,8 +50,9 @@ class ObfPost:
     def send(self, original_payload, additional_handlers=[]):
 
         obfuscated_payload = base64.b64encode(
-            utils.strings.sxor(zlib.compress(original_payload.encode()),
-                               self.shared_key)).rstrip(b'=')
+            utils.strings.sxor(
+                zlib.compress(original_payload.encode()),
+                self.shared_key)).rstrip(b'=')
 
         wrapped_payload = PREPEND + self.header + obfuscated_payload + self.trailer + APPEND
 

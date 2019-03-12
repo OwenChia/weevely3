@@ -19,9 +19,9 @@ set_filters = ('debug', 'channel', 'proxy')
 
 
 class Session(dict):
+
     def _session_save_atexit(self):
-        yaml.dump(
-            dict(self), open(self['path'], 'w'), default_flow_style=False)
+        yaml.dump(dict(self), open(self['path'], 'w'), default_flow_style=False)
 
     def print_to_user(self, module_filter=''):
 
@@ -34,7 +34,7 @@ class Session(dict):
                 # Is a module, print all the storable stored_arguments
                 for argument, arg_value in mod_args.items():
                     if not module_filter or ("%s.%s" % (mod_name, argument)
-                                             ).startswith(module_filter):
+                                            ).startswith(module_filter):
                         log.info(messages.sessions.set_module_s_s_s %
                                  (mod_name, argument, arg_value))
             else:
@@ -164,12 +164,12 @@ class Session(dict):
 
 
 class SessionFile(Session):
+
     def __init__(self, dbpath, volatile=False):
         try:
             sessiondb = yaml.load(open(dbpath, 'r').read())
         except Exception as e:
-            log.warn(
-                messages.generic.error_loading_file_s_s % (dbpath, str(e)))
+            log.warn(messages.generic.error_loading_file_s_s % (dbpath, str(e)))
             raise FatalException(messages.sessions.error_loading_sessions)
 
         if sessiondb and isinstance(sessiondb, dict):
@@ -191,6 +191,7 @@ class SessionFile(Session):
 
 
 class SessionURL(Session):
+
     def __init__(self, url, password, volatile=False):
 
         if not os.path.isdir(sessions_path):

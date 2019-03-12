@@ -300,8 +300,7 @@ class Module:
         self.argparser.description = self.info.get('description')
 
         if not self.argparser.description:
-            raise DevException(
-                messages.module.error_module_missing_description)
+            raise DevException(messages.module.error_module_missing_description)
 
     def register_arguments(self, arguments=[]):
         """Register the module arguments.

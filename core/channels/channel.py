@@ -21,6 +21,7 @@ url_dissector = re.compile(
 
 
 class Channel:
+
     def __init__(self, channel_name, session):
         """
         Import and instanciate dynamically the channel.
@@ -132,8 +133,8 @@ class Channel:
         else:
             command_last_chars = utils.prettify.shorten(
                 payload.rstrip(), keep_trailer=10)
-            if (command_last_chars
-                    and command_last_chars[-1] not in (';', '}')):
+            if (command_last_chars and
+                    command_last_chars[-1] not in (';', '}')):
                 log.warn(messages.module_shell_php.missing_php_trailer_s %
                          command_last_chars)
 

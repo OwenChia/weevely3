@@ -22,6 +22,7 @@ from core import messages
 
 
 class VectorList(list):
+
     def __init__(self, session, module_name):
 
         self.session = session

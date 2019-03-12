@@ -18,6 +18,7 @@ class HelpParser(argparse.ArgumentParser):
 
 
 class CliParser(argparse.ArgumentParser):
+
     def set_default_subparser(self, name, args=None):
         """default subparser selection. Call after setup, just before parse_args()
 	    name: is the name of the subparser to call by default

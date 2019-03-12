@@ -18,14 +18,11 @@ import utils
 import os
 import http.client
 
-referrer_templates_path = os.path.join(
-    config.weevely_path,
-    'core/channels/stegaref/referrers.tpl'
-)
-languages_list_path = os.path.join(
-    config.weevely_path,
-    'core/channels/stegaref/languages.txt'
-)
+referrer_templates_path = os.path.join(config.weevely_path,
+                                       'core/channels/stegaref/referrers.tpl')
+languages_list_path = os.path.join(config.weevely_path,
+                                   'core/channels/stegaref/languages.txt')
+
 
 class StegaRef:
 
@@ -34,7 +31,8 @@ class StegaRef:
         # Generate the 8 char long main key. Is shared with the server and
         # used to check header, footer, and encrypt the payload.
 
-        self.shared_key = hashlib.md5(password.encode()).hexdigest().lower()[:8].encode()
+        self.shared_key = hashlib.md5(
+            password.encode()).hexdigest().lower()[:8].encode()
 
         self.url = url
         url_parsed = urllib.parse.urlparse(url)
@@ -42,11 +40,11 @@ class StegaRef:
 
         # init regexp for the returning data
         self.re_response = re.compile(
-            b"<%s>(.*)</%s>" %
-            (self.shared_key[:8], self.shared_key[:8]), re.DOTALL)
+            b"<%s>(.*)</%s>" % (self.shared_key[:8], self.shared_key[:8]),
+            re.DOTALL)
         self.re_debug = re.compile(
-            b"<%sDEBUG>(.*?)</%sDEBUG>" %
-            (self.shared_key[:8], self.shared_key[:8]), re.DOTALL)
+            b"<%sDEBUG>(.*?)</%sDEBUG>" % (self.shared_key[:8],
+                                           self.shared_key[:8]), re.DOTALL)
 
         # Load and format the referrers templates (payload container)
         self.referrers_vanilla = self._load_referrers()
@@ -83,18 +81,22 @@ class StegaRef:
                     name, value = cookie.split('=')
                     cj.set_cookie(
                         http.cookiejar.Cookie(
-                          version=0,
-                          name=name,
-                          value=value,
-                          port=None, port_specified=False,
-                          domain='',
-                          domain_specified=True,
-                          domain_initial_dot=True, path='/',
-                          path_specified=True, secure=False,
-                          expires=None, discard=True, comment=None,
-                          comment_url=None, rest={'HttpOnly': None}
-                        )
-                    )
+                            version=0,
+                            name=name,
+                            value=value,
+                            port=None,
+                            port_specified=False,
+                            domain='',
+                            domain_specified=True,
+                            domain_initial_dot=True,
+                            path='/',
+                            path_specified=True,
+                            secure=False,
+                            expires=None,
+                            discard=True,
+                            comment=None,
+                            comment_url=None,
+                            rest={'HttpOnly': None}))
             elif h[0].lower() in ('accept', 'accept-language', 'referer'):
                 # Skip sensible headers
                 pass
@@ -104,33 +106,23 @@ class StegaRef:
         for referrer_index, referrer_data in enumerate(referrers_data):
 
             accept_language_header = self._generate_header_accept_language(
-                referrer_data[1],
-                session_id)
+                referrer_data[1], session_id)
             accept_header = self._generate_header_accept()
             opener.addheaders = [
                 ('Referer', referrer_data[0]),
                 ('Accept-Language', accept_language_header),
                 ('Accept', accept_header),
-                ('User-Agent', (
-                    additional_ua if additional_ua else random.choice(self.agents)
-                    )
-                )
+                ('User-Agent', (additional_ua if additional_ua else
+                                random.choice(self.agents)))
             ] + additional_headers
 
             dlog.debug(
                 '[H %i/%i]\n%s\n[C] %s' %
-                (
-                    referrer_index,
-                    len(referrers_data) - 1,
-                    '\n'.join('> %s: %s' % (h[0], h[1]) for h in opener.addheaders),
-                    cj
-                )
-            )
+                (referrer_index, len(referrers_data) - 1, '\n'.join(
+                    '> %s: %s' % (h[0], h[1]) for h in opener.addheaders), cj))
 
-            url = (
-                self.url if not config.add_random_param_nocache
-                else utils.http.add_random_url_param(self.url)
-            )
+            url = (self.url if not config.add_random_param_nocache else
+                   utils.http.add_random_url_param(self.url))
 
             try:
                 response = opener.open(url).read()
@@ -151,30 +143,33 @@ class StegaRef:
             if matched and matched.group(1):
                 return zlib.decompress(
                     utils.strings.sxor(
-                        base64.b64decode(
-                            matched.group(1)),
-                        self.shared_key))
+                        base64.b64decode(matched.group(1)), self.shared_key))
 
     def _prepare(self, payload):
 
         obfuscated_payload = base64.urlsafe_b64encode(
-            utils.strings.sxor(
-                zlib.compress(payload),
-                self.shared_key)).rstrip(b'=')
+            utils.strings.sxor(zlib.compress(payload),
+                               self.shared_key)).rstrip(b'=')
 
         # Generate a randomic seession_id that does not conflicts with the
         # payload chars
 
         for i in range(30):
-            session_id = ''.join(random.choice(string.ascii_lowercase) for x in range(2)).encode()
+            session_id = ''.join(
+                random.choice(string.ascii_lowercase)
+                for x in range(2)).encode()
 
             # Generate 3-character urlsafe_b64encode header and footer
             # checkable on server side
-            header = hashlib.md5(session_id + self.shared_key[:4]).hexdigest().lower()[:3].encode()
-            footer = hashlib.md5(session_id + self.shared_key[4:8]).hexdigest().lower()[:3].encode()
+            header = hashlib.md5(session_id + self.shared_key[:4]).hexdigest(
+            ).lower()[:3].encode()
+            footer = hashlib.md5(session_id + self.shared_key[4:8]).hexdigest(
+            ).lower()[:3].encode()
 
-            if (header not in obfuscated_payload and footer not in obfuscated_payload and not (
-                    obfuscated_payload + footer).find(footer) != len(obfuscated_payload)):
+            if (header not in obfuscated_payload and
+                    footer not in obfuscated_payload and
+                    not (obfuscated_payload + footer).find(footer) !=
+                    len(obfuscated_payload)):
                 break
             elif i == 30:
                 raise ChannelException(
@@ -190,7 +185,8 @@ class StegaRef:
         # Randomize the order
         random.shuffle(self.referrers_vanilla)
 
-        for referrer_index, referrer_vanilla_data in enumerate(itertools.cycle(self.referrers_vanilla)):
+        for referrer_index, referrer_vanilla_data in enumerate(
+                itertools.cycle(self.referrers_vanilla)):
 
             # Separate the chunks sizes from the referrers
             referrer_vanilla, chunks_sizes_vanilla = referrer_vanilla_data
@@ -227,8 +223,8 @@ class StegaRef:
                     # Cause an error.
                     if parameter_index > 9:
                         raise ChannelException(
-                            core.messages.stegareferrer.error_chunk_position_i_s %
-                            (parameter_index, referrer_vanilla))
+                            core.messages.stegareferrer.error_chunk_position_i_s
+                            % (parameter_index, referrer_vanilla))
 
                     # Pick a proper payload size
                     min_size, max_size = chunks_sizes.pop(0)
@@ -252,12 +248,9 @@ class StegaRef:
                         padding_size = 0
 
                     # Add crafted parameter
-                    referrer += '%s=%s%s' % (param,
-                                             remaining_payload[
-                                                 :payload_size],
-                                             utils.strings.randstr(
-                                                 padding_size
-                                              ))
+                    referrer += '%s=%s%s' % (
+                        param, remaining_payload[:payload_size],
+                        utils.strings.randstr(padding_size))
 
                     # If some payload was inserted, add position and cut
                     # remaining payload
@@ -278,9 +271,8 @@ class StegaRef:
         try:
             referrer_file = open(referrer_templates_path)
         except Exception as e:
-            raise FatalException(
-                core.messages.generic.error_loading_file_s_s %
-                (referrer_templates_path, str(e)))
+            raise FatalException(core.messages.generic.error_loading_file_s_s %
+                                 (referrer_templates_path, str(e)))
 
         for template in referrer_file.read().split('\n'):
             if not template.startswith('http'):
@@ -288,10 +280,10 @@ class StegaRef:
 
             referer_format = FirstRefererFormat(self.url)
 
-            template_first_formatted = Template(
-                template).render(tpl=referer_format)
-            referrers_vanilla.append(
-                (template_first_formatted, referer_format.chunks_sizes))
+            template_first_formatted = Template(template).render(
+                tpl=referer_format)
+            referrers_vanilla.append((template_first_formatted,
+                                      referer_format.chunks_sizes))
 
         return referrers_vanilla
 
@@ -300,9 +292,8 @@ class StegaRef:
         try:
             language_file = open(languages_list_path)
         except Exception as e:
-            raise FatalException(
-                core.messages.generic.error_loading_file_s_s %
-                (languages_list_path, str(e)))
+            raise FatalException(core.messages.generic.error_loading_file_s_s %
+                                 (languages_list_path, str(e)))
 
         languages = language_file.read().split('\n')
 
@@ -311,7 +302,9 @@ class StegaRef:
         import string
         for letter in string.ascii_lowercase:
             if not any([l for l in languages if l.startswith(letter)]):
-                raise ChannelException(core.messages.stegareferrer.error_language_start_letter_s % letter)
+                raise ChannelException(
+                    core.messages.stegareferrer.error_language_start_letter_s %
+                    letter)
 
         return languages
 
@@ -321,13 +314,13 @@ class StegaRef:
 
         # Send session_id composing the two first languages
         # accept_language = '%s,' % (random.choice(
-            # [l for l in self.languages if '-' in l and l.startswith(bytes((session_id[0], )))]))
+        # [l for l in self.languages if '-' in l and l.startswith(bytes((session_id[0], )))]))
         accept_language = '%s,' % (self.languages[0])
 
         # languages = [l for l in self.languages if '-' not in l and l.startswith(bytes((session_id[1], )))]
         languages = self.languages
-        accept_language += '%s;q=0.%i' % (
-            random.choice(languages), positions[0])
+        accept_language += '%s;q=0.%i' % (random.choice(languages),
+                                          positions[0])
 
         # Add remaining q= positions
         for position in positions[1:]:
@@ -342,9 +335,7 @@ class StegaRef:
         """Generate an accept header value"""
 
         content_types = [
-            'text/html',
-            'application/xhtml+xml',
-            'application/xml',
+            'text/html', 'application/xhtml+xml', 'application/xml',
             'text/plain'
         ]
 
@@ -358,8 +349,8 @@ class StegaRef:
         # Add some other content types with quality
         latest_quality = 9
         for r in range(0, random.randint(1, len(content_types))):
-            header.append('%s;0.%i,' %(content_types.pop(), latest_quality))
-            latest_quality = random.randint(latest_quality-2, latest_quality)
+            header.append('%s;0.%i,' % (content_types.pop(), latest_quality))
+            latest_quality = random.randint(latest_quality - 2, latest_quality)
 
         # Add
         header.append('*/*')
