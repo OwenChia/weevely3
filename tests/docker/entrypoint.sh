@@ -8,6 +8,7 @@ PWD="`python -c 'from tests import config;print(config.password)'`"
 
 # Generic environment setting install
 mkdir -p "$BASE_FOLDER"
+echo python ./weevely.py generate "$PWD" "$AGENT"
 python ./weevely.py generate "$PWD" "$AGENT"
 
 service apache2 start
