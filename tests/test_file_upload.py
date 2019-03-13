@@ -56,7 +56,7 @@ class FileUpload(BaseTest):
 
         # Upload lfile
         temp_file = tempfile.NamedTemporaryFile()
-        temp_file.write('CONTENT')
+        temp_file.write(b'CONTENT')
         self.assertTrue(
             self.run_argv(
                 [temp_file.name, 'test_file_upload/f4', '-vector', 'fwrite']))
@@ -140,7 +140,7 @@ class FileUpload(BaseTest):
 
         # Upload lfile
         temp_file = tempfile.NamedTemporaryFile()
-        temp_file.write(binary_content)
+        temp_file.write(binary_content.encode())
         self.assertTrue(self.run_argv([temp_file.name, 'test_file_upload/f8']))
         temp_file.close()
 
@@ -158,7 +158,7 @@ class FileUpload(BaseTest):
 
         # Upload lfile
         temp_file = tempfile.NamedTemporaryFile()
-        temp_file.write(binary_content)
+        temp_file.write(binary_content.encode())
         self.assertTrue(
             self.run_argv(
                 [temp_file.name, 'test_file_upload/f10', '-vector', 'fwrite']))
