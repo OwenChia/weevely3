@@ -129,7 +129,7 @@ class FileGrep(BaseTest):
                 ])[1])
             self.assertEqual(
                 subprocess.check_output(
-                    'cat "%s"' % (output_path), shell=True), '')
+                    'cat "%s"' % (output_path), shell=True), b'')
 
             subprocess.check_output('rm -f %s' % (output_path), shell=True)
 
