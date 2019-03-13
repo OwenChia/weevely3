@@ -50,8 +50,8 @@ class FileDownload(BaseTest):
         # Downoad binary. Skip check cause I don't know the remote content, and
         # the md5 check is already done inside file_download.
         self.assertTrue(self.run_argv(['/bin/ls', temp_file.name]))
-        with open(temp_file.name, 'r') as fd:
-            self.assertTrue(fd.read(), 'OK')
+        with open(temp_file.name, 'rb') as fd:
+            self.assertTrue(fd.read())
         temp_file.truncate()
 
         # Download of an unreadable file
@@ -96,7 +96,7 @@ class FileDownload(BaseTest):
         # the md5 check is already done inside file_download.
         self.assertTrue(
             self.run_argv(['-vector', 'base64', '/bin/ls', temp_file.name]))
-        with open(temp_file.name, 'r') as fd:
+        with open(temp_file.name, 'rb') as fd:
             self.assertTrue(fd.read())
         temp_file.truncate()
 
