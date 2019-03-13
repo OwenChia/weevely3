@@ -194,7 +194,7 @@ class Terminal(CmdModules):
                 self.session['shell_sh']['status'] = modules.loaded[
                     'shell_sh'].setup()
             except ChannelException as e:
-                log.error(e.message)
+                log.error(e.msg)
                 return ''
 
         # Set default_shell in any case (could have been changed runtime)
