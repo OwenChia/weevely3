@@ -53,7 +53,7 @@ class Upload(Module):
 
     def run(self):
         # Load local file
-        content_orig = self.args.get('content')
+        content_orig = self.args.get('content').encode()
         if content_orig is None:
 
             lpath = self.args.get('lpath')
