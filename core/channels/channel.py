@@ -40,7 +40,7 @@ class Channel:
 
             # Import object
             channel_object = getattr(module, channel_name)
-        except:
+        except Exception:
             raise ChannelException(
                 messages.channels.error_loading_channel_s % (channel_name))
 

@@ -68,15 +68,15 @@ class CmdModules(cmd.Cmd):
         commands by the interpreter should stop.
 
         """
+        if line == 'EOF':
+            # self.lastcmd = ''
+            raise EOFError()
         cmd, arg, line = self.parseline(line)
         if not line:
             return self.emptyline()
         if cmd is None:
             return self.default(line)
         self.lastcmd = line
-        if line == 'EOF':
-            # self.lastcmd = ''
-            raise EOFError()
         if cmd == '':
             return self.default(line)
         if cmd:
@@ -194,7 +194,7 @@ class Terminal(CmdModules):
                 self.session['shell_sh']['status'] = modules.loaded[
                     'shell_sh'].setup()
             except ChannelException as e:
-                log.error(repr(e))
+                log.error(e.args[0])
                 return ''
 
         # Set default_shell in any case (could have been changed runtime)
