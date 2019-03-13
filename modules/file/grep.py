@@ -165,7 +165,8 @@ $m=Array();preg_match_all("/${'' if regex.startswith('^') else '.*' }${regex.rep
                     ['-content', result_str, output_path]).run()
             else:
                 try:
-                    open(output_path, 'wb').write(result_str)
+                    with open(output_path, 'w') as fd:
+                        fd.write(result_str)
                 except Exception as e:
                     log.warning(messages.generic.error_loading_file_s_s %
                                 (output_path, str(e)))
