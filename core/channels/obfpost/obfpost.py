@@ -49,9 +49,11 @@ class ObfPost:
 
     def send(self, original_payload, additional_handlers=[]):
 
+        if isinstance(original_payload, str):
+            original_payload = original_payload.encode()
         obfuscated_payload = base64.b64encode(
             utils.strings.sxor(
-                zlib.compress(original_payload.encode()),
+                zlib.compress(original_payload),
                 self.shared_key)).rstrip(b'=')
 
         wrapped_payload = PREPEND + self.header + obfuscated_payload + self.trailer + APPEND
