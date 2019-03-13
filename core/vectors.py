@@ -131,13 +131,19 @@ class ModuleExec:
             result = modules.loaded[self.module].run_argv(formatted)
 
         if isinstance(result, bytes):
-            result = result.decode()
+            try:
+                result = result.decode()
+            except UnicodeDecodeError as e:
+                print(repr(e))
 
         if self.postprocess:
             result = self.postprocess(result)
 
         if isinstance(result, bytes):
-            result = result.decode()
+            try:
+                result = result.decode()
+            except UnicodeDecodeError as e:
+                print(repr(e))
 
         return result
 
