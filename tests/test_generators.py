@@ -43,7 +43,7 @@ class TestGenerators(TestCase):
                        random.randint(step_rand_start, step_rand_to)):
             payload = utils.strings.randstr(i)
             self.assertEqual(
-                self.channel.send('echo("%s");' % payload)[0], payload)
+                self.channel.send('echo("%s");' % payload)[0], payload.encode())
 
     @classmethod
     def _randomize_bd(cls):
