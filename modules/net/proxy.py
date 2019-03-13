@@ -153,7 +153,7 @@ class ProxyRequestHandler(BaseHTTPRequestHandler):
                 p2.communicate()
 
         self.wfile.write(("%s %d %s\r\n" % (self.protocol_version, 200,
-                                           'Connection Established')).encode())
+                                            'Connection Established')).encode())
         self.end_headers()
 
         try:

@@ -16,7 +16,7 @@ class LegacyCookie:
         self.url = url
         self.password = password
         self.extractor = re.compile(
-            "<%s>(.*)</%s>" % (self.password[2:], self.password[2:]), re.DOTALL)
+            b"<%s>(.*)</%s>" % (self.password[2:], self.password[2:]), re.DOTALL)
 
         self.parsed = urllib.parse.urlparse(self.url)
         self.data = None

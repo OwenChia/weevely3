@@ -269,36 +269,33 @@ class StegaRef:
         referrers_vanilla = []
 
         try:
-            referrer_file = open(referrer_templates_path)
+            with open(referrer_templates_path) as referrer_file:
+                for template in referrer_file.read().split('\n'):
+                    if not template.startswith('http'):
+                        continue
+
+                    referer_format = FirstRefererFormat(self.url)
+
+                    template_first_formatted = Template(template).render(
+                        tpl=referer_format)
+                    referrers_vanilla.append((template_first_formatted,
+                                              referer_format.chunks_sizes))
+
+                return referrers_vanilla
         except Exception as e:
             raise FatalException(core.messages.generic.error_loading_file_s_s %
                                  (referrer_templates_path, str(e)))
 
-        for template in referrer_file.read().split('\n'):
-            if not template.startswith('http'):
-                continue
-
-            referer_format = FirstRefererFormat(self.url)
-
-            template_first_formatted = Template(template).render(
-                tpl=referer_format)
-            referrers_vanilla.append((template_first_formatted,
-                                      referer_format.chunks_sizes))
-
-        return referrers_vanilla
-
     def _load_languages(self):
 
         try:
-            language_file = open(languages_list_path)
+            with open(languages_list_path) as language_file:
+                languages = language_file.read().split('\n')
         except Exception as e:
             raise FatalException(core.messages.generic.error_loading_file_s_s %
                                  (languages_list_path, str(e)))
 
-        languages = language_file.read().split('\n')
-
-        # Language list validation, every lower ascii starting letter should be
-        # covered
+        # Language list validation, every lower ascii starting letter should be covered
         import string
         for letter in string.ascii_lowercase:
             if not any([l for l in languages if l.startswith(letter)]):

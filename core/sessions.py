@@ -156,8 +156,7 @@ class Session(dict):
         else:
             module_name = module_argument
             if module_name not in self and module_name not in set_filters:
-                log.warning(messages.sessions.error_session_s_not_modified %
-                         (module_name))
+                log.warning(messages.sessions.error_session_s_not_modified % (module_name))
             else:
                 self[module_name] = value
                 log.info(messages.sessions.set_s_s % (module_name, value))
@@ -167,7 +166,8 @@ class SessionFile(Session):
 
     def __init__(self, dbpath, volatile=False):
         try:
-            sessiondb = yaml.load(open(dbpath, 'r').read())
+            with open(dbpath, 'r') as fd:
+                sessiondb = yaml.load(fd.read())
         except Exception as e:
             log.warning(messages.generic.error_loading_file_s_s % (dbpath, str(e)))
             raise FatalException(messages.sessions.error_loading_sessions)
