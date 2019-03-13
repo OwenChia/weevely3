@@ -141,7 +141,7 @@ class FileGrep(BaseTest):
                 ])[0], {self.files_rel[2]: ['string3']})
             self.assertEqual(
                 subprocess.check_output(
-                    'cat "%s"' % (output_path), shell=True), 'string3')
+                    'cat "%s"' % (output_path), shell=True), b'string3')
             subprocess.check_output('rm -f %s' % (output_path), shell=True)
 
     def test_file_grep_output_local(self):
