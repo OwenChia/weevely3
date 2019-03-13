@@ -137,7 +137,7 @@ class StegaRef:
             # Multiple debug string may have been printed, using findall
             matched_debug = self.re_debug.findall(response)
             if matched_debug:
-                dlog.debug('\n'.join(matched_debug))
+                dlog.debug(b'\n'.join(matched_debug))
 
             matched = self.re_response.search(response)
             if matched and matched.group(1):
