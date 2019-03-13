@@ -48,7 +48,7 @@ class FileEnum(BaseTest):
     def test_file_enum(self):
 
         # Enum self.files_rel[:2] passed with arguments
-        self.assertItemsEqual(
+        self.assertCountEqual(
             self.run_argv(self.files_rel[:3]), {
                 self.files_rel[0]: ['ex'],
                 self.files_rel[1]: ['ew'],
@@ -56,7 +56,7 @@ class FileEnum(BaseTest):
             })
 
         # Enum self.files_rel[:2] + bogus passed with arguments
-        self.assertItemsEqual(
+        self.assertCountEqual(
             self.run_argv(self.files_rel[:3] + ['bogus']), {
                 self.files_rel[0]: ['ex'],
                 self.files_rel[1]: ['ew'],
@@ -64,7 +64,7 @@ class FileEnum(BaseTest):
             })
 
         # Enum self.files_rel[:2] + bogus passed with arguments and -print
-        self.assertItemsEqual(
+        self.assertCountEqual(
             self.run_argv(self.files_rel[:3] + ['bogus', '-print']), {
                 self.files_rel[0]: ['ex'],
                 self.files_rel[1]: ['ew'],
@@ -78,7 +78,7 @@ class FileEnum(BaseTest):
         temp_file = tempfile.NamedTemporaryFile()
         temp_file.write('\n'.join(self.files_rel[:3]).encode())
         temp_file.flush()
-        self.assertItemsEqual(
+        self.assertCountEqual(
             self.run_argv(['-lpath-list', temp_file.name]), {
                 self.files_rel[0]: ['ex'],
                 self.files_rel[1]: ['ew'],
@@ -90,7 +90,7 @@ class FileEnum(BaseTest):
         temp_file = tempfile.NamedTemporaryFile()
         temp_file.write('\n'.join(self.files_rel[:3] + ['bogus']).encode())
         temp_file.flush()
-        self.assertItemsEqual(
+        self.assertCountEqual(
             self.run_argv(['-lpath-list', temp_file.name]), {
                 self.files_rel[0]: ['ex'],
                 self.files_rel[1]: ['ew'],
@@ -102,7 +102,7 @@ class FileEnum(BaseTest):
         temp_file = tempfile.NamedTemporaryFile()
         temp_file.write('\n'.join(self.files_rel[:3] + ['bogus']).encode())
         temp_file.flush()
-        self.assertItemsEqual(
+        self.assertCountEqual(
             self.run_argv(['-lpath-list', temp_file.name, '-print']), {
                 self.files_rel[0]: ['ex'],
                 self.files_rel[1]: ['ew'],
