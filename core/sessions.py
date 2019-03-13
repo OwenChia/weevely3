@@ -110,7 +110,7 @@ class Session(dict):
         if module_argument.count('.') == 1:
             module_name, arg_name = module_argument.split('.')
             if arg_name not in self[module_name]['stored_args']:
-                log.warn(messages.sessions.error_session_s_not_modified %
+                log.warning(messages.sessions.error_session_s_not_modified %
                          ('%s.%s' % (module_name, arg_name)))
             else:
                 del self[module_name]['stored_args'][arg_name]
@@ -119,7 +119,7 @@ class Session(dict):
         else:
             module_name = module_argument
             if module_name not in self and module_name not in set_filters:
-                log.warn(messages.sessions.error_session_s_not_modified %
+                log.warning(messages.sessions.error_session_s_not_modified %
                          (module_name))
             else:
                 self[module_name] = None
@@ -156,7 +156,7 @@ class Session(dict):
         else:
             module_name = module_argument
             if module_name not in self and module_name not in set_filters:
-                log.warn(messages.sessions.error_session_s_not_modified %
+                log.warning(messages.sessions.error_session_s_not_modified %
                          (module_name))
             else:
                 self[module_name] = value
@@ -169,7 +169,7 @@ class SessionFile(Session):
         try:
             sessiondb = yaml.load(open(dbpath, 'r').read())
         except Exception as e:
-            log.warn(messages.generic.error_loading_file_s_s % (dbpath, str(e)))
+            log.warning(messages.generic.error_loading_file_s_s % (dbpath, str(e)))
             raise FatalException(messages.sessions.error_loading_sessions)
 
         if sessiondb and isinstance(sessiondb, dict):
@@ -184,7 +184,7 @@ class SessionFile(Session):
                 self.load_session(sessiondb)
                 return
 
-        log.warn(messages.generic.error_loading_file_s_s %
+        log.warning(messages.generic.error_loading_file_s_s %
                  (dbpath, 'no url or password'))
 
         raise FatalException(messages.sessions.error_loading_sessions)
@@ -215,7 +215,7 @@ class SessionURL(Session):
             try:
                 sessiondb = yaml.load(open(dbpath, 'r').read())
             except Exception as e:
-                log.warn(
+                log.warning(
                     messages.generic.error_loading_file_s_s % (dbpath, str(e)))
 
             if sessiondb and isinstance(sessiondb, dict):
@@ -224,7 +224,7 @@ class SessionURL(Session):
                 saved_password = sessiondb.get('password')
 
                 if not saved_url or not saved_password:
-                    log.warn(messages.generic.error_loading_file_s_s %
+                    log.warning(messages.generic.error_loading_file_s_s %
                              (dbpath, 'no url or password'))
 
                 if saved_url == url and saved_password == password:

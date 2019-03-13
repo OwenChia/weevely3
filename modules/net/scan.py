@@ -100,7 +100,7 @@ class Scan(Module):
                         'timeout': self.args['timeout']
                     })
 
-                log.warn('Scanning addresses %s-%s:%i-%i' %
+                log.warning('Scanning addresses %s-%s:%i-%i' %
                          (ips_chunk[0], ips_chunk[-1], prts_chunk[0],
                           prts_chunk[-1]))
 

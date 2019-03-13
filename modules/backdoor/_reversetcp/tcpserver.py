@@ -55,7 +55,7 @@ class TcpServer:
                 raise
 
     def forward_data(self):
-        log.warn(messages.module_backdoor_reversetcp.reverse_shell_connected)
+        log.warning(messages.module_backdoor_reversetcp.reverse_shell_connected)
 
         self.socket.setblocking(0)
 

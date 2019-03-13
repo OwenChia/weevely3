@@ -97,16 +97,16 @@ class Mount(Module):
             'agent_url' : result[0][1]
         })
 
-        log.warn(
+        log.warning(
             template.Template(
                 messages.module_file_mount.agent_installed_tutorial
             ).render(**self.args)
         )
 
         if self.args['no_autoremove']:
-            log.warn(messages.module_file_mount.httpfs_agent_manually_remove_s % (result[0][0]))
+            log.warning(messages.module_file_mount.httpfs_agent_manually_remove_s % (result[0][0]))
         else:
-            log.warn(messages.module_file_mount.httpfs_agent_removed)
+            log.warning(messages.module_file_mount.httpfs_agent_removed)
             atexit.register(
                 ModuleExec('file_rm', [
                                         result[0][0]

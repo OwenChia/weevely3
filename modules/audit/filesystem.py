@@ -128,7 +128,7 @@ class Filesystem(Module):
         ]:
 
             function = getattr(self, func_name)
-            log.warn(function.__doc__)
+            log.warning(function.__doc__)
 
             result = function()
 

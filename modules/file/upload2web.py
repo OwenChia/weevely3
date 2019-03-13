@@ -79,11 +79,11 @@ class Upload2web(Module):
                                    [relative_path_folder, 'abspath']).run()
 
         if not absolute_path:
-            log.warn(messages.module_file_upload2web.failed_resolve_path)
+            log.warning(messages.module_file_upload2web.failed_resolve_path)
             return None, None
 
         if not absolute_path.startswith(self.base_folder_path.rstrip('/')):
-            log.warn(
+            log.warning(
                 messages.module_file_upload2web.error_s_not_under_webroot_s %
                 (absolute_path, self.base_folder_path.rstrip('/')))
             return None, None
@@ -122,7 +122,7 @@ class Upload2web(Module):
 
         self._get_env_info(self.session['url'])
         if not self.base_folder_url or not self.base_folder_path:
-            log.warn(messages.module_file_upload2web.failed_retrieve_info)
+            log.warning(messages.module_file_upload2web.failed_retrieve_info)
 
         # If remote path is a folder, get first writable folder
         if ModuleExec("file_check", [self.args['rpath'], 'dir']).run():
@@ -130,7 +130,7 @@ class Upload2web(Module):
                 "file_find", ['-writable', '-quit', self.args['rpath']]).run()
 
             if not folders or not folders[0]:
-                log.warn(
+                log.warning(
                     messages.module_file_upload2web.
                     failed_search_writable_starting_s % self.args['rpath'])
                 return None, None

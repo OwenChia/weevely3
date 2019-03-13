@@ -69,7 +69,7 @@ class Dump(Module):
 
         if self.args[
                 'vector'] == 'mysqldump_sh' and self.args['dbms'] != 'mysql':
-            log.warn(messages.module.vector_s_not_support_arg_s_s %
+            log.warning(messages.module.vector_s_not_support_arg_s_s %
                      (self.args['vector'], 'dbms', self.args['dbms']))
             return
 
@@ -79,7 +79,7 @@ class Dump(Module):
             condition=lambda r: r and '-- Dumping data for table' in r)
 
         if not vector_name:
-            log.warn(
+            log.warning(
                 messages.module_sql_dump.sql_dump_failed_check_credentials)
             return
 
@@ -107,7 +107,7 @@ class Dump(Module):
         try:
             open(lpath, 'w').write(result)
         except Exception as e:
-            log.warn(messages.generic.error_creating_file_s_s % (lpath, e))
+            log.warning(messages.generic.error_creating_file_s_s % (lpath, e))
             return
 
         log.info(messages.module_sql_dump.sql_dump_saved_s % lpath)

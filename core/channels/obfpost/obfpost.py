@@ -78,7 +78,7 @@ class ObfPost:
         except http.client.BadStatusLine as e:
             # TODO: add this check to the other channels
             print((repr(e)))
-            # log.warn('Connection closed unexpectedly, aborting command.')
+            # log.warning('Connection closed unexpectedly, aborting command.')
             print('Connection closed unexpectedly, aborting command.')
             return
 

@@ -128,7 +128,7 @@ class StegaRef:
                 response = opener.open(url).read()
             except http.client.BadStatusLine as e:
                 # TODO: add this check to the other channels
-                log.warn('Connection closed unexpectedly, aborting command.')
+                log.warning('Connection closed unexpectedly, aborting command.')
                 return
 
             if not response:

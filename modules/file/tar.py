@@ -55,7 +55,7 @@ class Tar(Module):
         )
 
         if result_err:
-            log.warn(result_err)
+            log.warning(result_err)
             return
 
         return True

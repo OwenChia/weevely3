@@ -129,7 +129,7 @@ class ProxyRequestHandler(BaseHTTPRequestHandler):
 
         if not (re_valid_ip.match(hostname)
                 or re_valid_hostname.match(hostname)):
-            log.warn("CN name '%s' is not valid, using 'www.weevely.com'" %
+            log.warning("CN name '%s' is not valid, using 'www.weevely.com'" %
                      (hostname))
             hostname = 'www.weevely.com'
 
@@ -375,17 +375,17 @@ class Proxy(Module):
 
     def run(self):
 
-        log.warn(messages.module_net_proxy.proxy_starting_s_i %
+        log.warning(messages.module_net_proxy.proxy_starting_s_i %
                  (self.args['lhost'], self.args['lport']))
-        log.warn(messages.module_net_proxy.proxy_set_proxy)
+        log.warning(messages.module_net_proxy.proxy_set_proxy)
 
         initialize_certificates()
 
         if self.args['no_background']:
-            log.warn(messages.module_net_proxy.proxy_started_foreground)
+            log.warning(messages.module_net_proxy.proxy_started_foreground)
             run_proxy2(hostname=self.args['lhost'], port=self.args['lport'])
         else:
-            log.warn(messages.module_net_proxy.proxy_started_background)
+            log.warning(messages.module_net_proxy.proxy_started_background)
             server_thread = threading.Thread(
                 target=run_proxy2,
                 kwargs={

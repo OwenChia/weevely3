@@ -162,7 +162,7 @@ class Curl(Module):
 
         # Print error and exit with no response or no headers
         if not (vector_name and result):
-            log.warn(messages.module_net_curl.unexpected_response)
+            log.warning(messages.module_net_curl.unexpected_response)
             return None, headers, saved
         elif not '\r\n' * 2 in result:
             # If something is returned but there is \r\n*2, we consider

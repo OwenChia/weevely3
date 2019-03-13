@@ -67,4 +67,4 @@ class Ifconfig(Module):
             if result:
                 return result
 
-        log.warn(messages.module_net_ifconfig.failed_retrieve_info)
+        log.warning(messages.module_net_ifconfig.failed_retrieve_info)

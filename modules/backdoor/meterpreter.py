@@ -73,7 +73,7 @@ class Meterpreter(Module):
 
         options += [('PORT', self.args.get('port'))]
 
-        log.warn(messages.module_backdoor_metasploit.make_sure_run_msfconsole)
+        log.warning(messages.module_backdoor_metasploit.make_sure_run_msfconsole)
         log.info(
             'msfconsole -x "use exploit/multi/handler; set PAYLOAD %s; %s run"'
             % (self.args['payload'], ' '.join(

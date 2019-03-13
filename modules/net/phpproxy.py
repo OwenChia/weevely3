@@ -53,16 +53,16 @@ class Phpproxy(Module):
                 and result[0][1]):
             return
 
-        log.warn(
+        log.warning(
             messages.module_net_phpproxy.phpproxy_installed_to_s_browser_to_s %
             (result[0][0], result[0][1]))
 
         if self.args['no_autoremove']:
-            log.warn(
+            log.warning(
                 messages.module_net_phpproxy.proxy_script_manually_remove_s %
                 (result[0][0]))
         else:
-            log.warn(messages.module_net_phpproxy.proxy_script_removed)
+            log.warning(messages.module_net_phpproxy.proxy_script_removed)
             atexit.register(ModuleExec('file_rm', [result[0][0]]).run)
 
         return result

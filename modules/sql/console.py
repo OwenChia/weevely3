@@ -166,12 +166,12 @@ class Console(Module):
 
         elif not result['error']:
 
-            log.warn('%s %s' % (messages.module_sql_console.no_data,
+            log.warning('%s %s' % (messages.module_sql_console.no_data,
                                 messages.module_sql_console.check_credentials))
 
             command_last_chars = utils.prettify.shorten(
                 self.args['query'].rstrip(), keep_trailer=10)
 
             if (command_last_chars and command_last_chars[-1] != ';'):
-                log.warn(messages.module_sql_console.missing_sql_trailer_s %
+                log.warning(messages.module_sql_console.missing_sql_trailer_s %
                          command_last_chars)

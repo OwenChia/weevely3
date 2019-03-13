@@ -96,18 +96,18 @@ class Touch(Module):
                     )
                 )
             except:
-                log.warn(messages.module_file_touch.error_invalid_timestamp_format)
+                log.warning(messages.module_file_touch.error_invalid_timestamp_format)
                 return
 
         if not self.args.get('epoch_ts'):
-            log.warn(messages.module_file_touch.error_source_timestamp_required)
+            log.warning(messages.module_file_touch.error_source_timestamp_required)
             return
 
         self.vectors.get_result(self.args['vector'], self.args)
 
         # Verify execution
         if not self.args['epoch_ts'] == ModuleExec('file_check', [ self.args.get('rpath'), 'time' ]).run():
-            log.warn(messages.module_file_touch.failed_touch_file)
+            log.warning(messages.module_file_touch.failed_touch_file)
             return
 
         return self.args['epoch_ts']

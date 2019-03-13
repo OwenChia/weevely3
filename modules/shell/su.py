@@ -92,7 +92,7 @@ class Su(Module):
             self.session['shell_su']['stored_args']['vector'] = vector_name
             return Status.RUN
         else:
-            log.warn(messages.module_shell_su.error_su_executing)
+            log.warning(messages.module_shell_su.error_su_executing)
             return Status.IDLE
 
     def run(self):

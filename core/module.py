@@ -97,7 +97,7 @@ class Module:
         except Exception as e:
             import traceback
             log.debug(traceback.format_exc())
-            log.warn(messages.generic.error_parsing_command_s % str(e))
+            log.warning(messages.generic.error_parsing_command_s % str(e))
             return
 
         # Execute the command, catching Ctrl-c, Ctrl-d, argparse exit,
@@ -115,7 +115,7 @@ class Module:
         except Exception as e:
             import traceback
             log.debug(traceback.format_exc())
-            log.warn(messages.module.error_module_exec_error_s % str(e))
+            log.warning(messages.module.error_module_exec_error_s % str(e))
             return
 
         self.print_result(result[:-1] if (
@@ -319,7 +319,7 @@ class Module:
                 # Handle if the argument registration is done before
                 # The vector registration. This should at least warn
                 if arg_opts.get('choices') == []:
-                    log.warn(messages.module.error_choices_s_s_empty %
+                    log.warning(messages.module.error_choices_s_s_empty %
                              (self.name, arg_name))
 
                 self.argparser.add_argument(

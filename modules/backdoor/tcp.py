@@ -99,6 +99,6 @@ class Tcp(Module):
         # If autoconnect was expected but Telnet() calls worked,
         # prints error message
         if not self.args.get('no_autoconnect'):
-            log.warn(messages.module_backdoor_tcp.error_connecting_to_s_s_s %
+            log.warning(messages.module_backdoor_tcp.error_connecting_to_s_s_s %
                      (urlparsed.hostname, self.args['port'],
                       'remote port not open or unreachable'))
