@@ -136,7 +136,7 @@ class LegacyCookieChannel(BaseTest):
                        random.randint(step_rand_start, step_rand_to)):
             payload = utils.strings.randstr(i)
             self.assertEqual(
-                self.channel.send('echo("%s");' % payload)[0], payload)
+                self.channel.send('echo("%s");' % payload)[0], payload.encode())
 
     def test_1_100_requests(self):
         self._incremental_requests(1, 100, 1, 2)
@@ -198,7 +198,7 @@ class LegacyReferrerChannel(BaseTest):
                        random.randint(step_rand_start, step_rand_to)):
             payload = utils.strings.randstr(i)
             self.assertEqual(
-                self.channel.send('echo("%s");' % payload)[0], payload)
+                self.channel.send('echo("%s");' % payload)[0], payload.encode())
 
     def test_1_100_requests(self):
         self._incremental_requests(1, 100, 1, 2)
@@ -249,7 +249,7 @@ class ObfPostChannel(BaseTest):
                        random.randint(step_rand_start, step_rand_to)):
             payload = utils.strings.randstr(i)
             self.assertEqual(
-                self.channel.send('echo("%s");' % payload)[0], payload)
+                self.channel.send('echo("%s");' % payload)[0], payload.encode())
 
 
 class AgentDEFAULTObfuscatorDefault(ObfPostChannel):

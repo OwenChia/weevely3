@@ -53,7 +53,7 @@ class Upload(Module):
 
     def run(self):
         # Load local file
-        content_orig = self.args.get('content').encode()
+        content_orig = self.args.get('content')
         if content_orig is None:
 
             lpath = self.args.get('lpath')
@@ -68,6 +68,9 @@ class Upload(Module):
                 log.warning(
                     messages.generic.error_loading_file_s_s % (lpath, str(e)))
                 return
+
+        if isinstance(content_orig, str):
+            content_orig = content_orig.encode()
 
         self.args['content'] = base64.b64encode(content_orig).decode()
 

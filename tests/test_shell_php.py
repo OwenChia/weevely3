@@ -16,7 +16,7 @@ class ShellPHP(BaseTest):
 
     @log_capture()
     def test_commands(self, log_captured):
-        self.assertEqual(self.run_argv(["echo(1);"]), "1")
+        self.assertEqual(self.run_argv(["echo(1);"]), b"1")
 
         # In case of some error in the remote PHP execution,
         # both 500 or 200 OK could be returned. In any case

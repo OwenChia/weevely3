@@ -39,7 +39,7 @@ class FileDownload(BaseTest):
         temp_file = tempfile.NamedTemporaryFile()
 
         # Simple download
-        self.assertEqual(self.run_argv(['test_file_download/ok.test', temp_file.name]), 'OK')
+        self.assertEqual(self.run_argv(['test_file_download/ok.test', temp_file.name]), b'OK')
         self.assertEqual(open(temp_file.name,'r').read(), 'OK')
         temp_file.truncate()
 
@@ -72,7 +72,7 @@ class FileDownload(BaseTest):
         temp_file = tempfile.NamedTemporaryFile()
 
         # Simple download
-        self.assertEqual(self.run_argv(['-vector', 'base64', 'test_file_download/ok.test', temp_file.name]), 'OK')
+        self.assertEqual(self.run_argv(['-vector', 'base64', 'test_file_download/ok.test', temp_file.name]), b'OK')
         self.assertEqual(open(temp_file.name,'r').read(), 'OK')
         temp_file.truncate()
 
