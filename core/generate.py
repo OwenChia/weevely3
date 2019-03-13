@@ -34,7 +34,7 @@ def generate(password, obfuscator='obfusc1_php', agent='obfpost_php'):
         obfuscated = obfuscator_template.render(agent=agent)
     except Exception as e:
         raise FatalException(messages.generate.error_obfuscator_template_s_s %
-                             (obfuscator_path, str(e)))
+                             (obfuscator_path, e))
 
     return obfuscated
 
