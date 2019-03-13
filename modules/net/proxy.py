@@ -7,7 +7,7 @@ from http.server import HTTPServer, BaseHTTPRequestHandler
 from tempfile import gettempdir
 from socketserver import ThreadingMixIn
 from urllib.parse import urlparse, urlunparse, ParseResult
-from io import StringIO
+from io import StringIO, BytesIO
 from http.client import HTTPResponse
 import threading
 import re
@@ -18,66 +18,74 @@ import ssl
 import select
 import http.client
 import urllib.parse
-import threading
 import time
 import json
-import re
-from http.server import HTTPServer, BaseHTTPRequestHandler
-from socketserver import ThreadingMixIn
-from io import StringIO
 from subprocess import Popen, PIPE
 from html.parser import HTMLParser
 from tempfile import mkdtemp
 
-re_valid_ip = re.compile("^(([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\.){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])$")
-re_valid_hostname  = re.compile("^(([a-zA-Z0-9\-]+)\.)*([A-Za-z]|[A-Za-z][A-Za-z0-9\-]*[A-Za-z0-9])$")
+re_valid_ip = re.compile(
+    r"^(([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\.){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])$"
+)
+re_valid_hostname = re.compile(
+    r"^(([a-zA-Z0-9\-]+)\.)*([A-Za-z]|[A-Za-z][A-Za-z0-9\-]*[A-Za-z0-9])$")
 
 temp_certdir = mkdtemp()
 
 lock = threading.Lock()
 
+
 class FakeSocket():
     def __init__(self, response_str):
-        self._file = StringIO(response_str)
+        self._file = BytesIO(response_str)
+
     def makefile(self, *args, **kwargs):
         return self._file
+
 
 # Create path for the CA certificates and keys
 cert_folder = os.path.join(base_path, 'certs')
 try:
     os.makedirs(cert_folder)
-except:
+except Exception:
     pass
+
 
 def get_cert_path(path):
     return os.path.join(cert_folder, path)
+
 
 def initialize_certificates():
 
     cakey_path = get_cert_path("ca.key")
     cacrt_path = get_cert_path("ca.crt")
     certkey_path = get_cert_path("cert.key")
-    
-    if not os.path.isfile(cakey_path) or not os.path.isfile(cacrt_path) or not os.path.isfile(certkey_path):
+
+    if not os.path.isfile(cakey_path) or not os.path.isfile(
+            cacrt_path) or not os.path.isfile(certkey_path):
         # openssl genrsa -out ca.key 2048
-        p1 = Popen(["openssl", "genrsa", "-out", cakey_path, "2048" ])
+        p1 = Popen(["openssl", "genrsa", "-out", cakey_path, "2048"])
         p1.communicate()
         p1.wait()
-    
+
         # openssl req -new -x509 -days 3650 -key ca.key -out ca.crt -subj "/CN=proxy2 CA"
-        p2 = Popen(["openssl", "req", "-new", "-x509", "-days", "3650", "-key",
-        cakey_path, "-out", cacrt_path, "-subj", "/CN=proxy2 CA" ])
+        p2 = Popen([
+            "openssl", "req", "-new", "-x509", "-days", "3650", "-key",
+            cakey_path, "-out", cacrt_path, "-subj", "/CN=proxy2 CA"
+        ])
         p2.communicate()
         p2.wait()
-        
+
         # openssl genrsa -out cert.key 2048
-        p3 = Popen(["openssl", "genrsa", "-out", certkey_path, "2048" ])
+        p3 = Popen(["openssl", "genrsa", "-out", certkey_path, "2048"])
         p3.communicate()
         p3.wait()
-        
+
+
 #
 # Most of the Proxy part has been taken from https://github.com/inaz2/proxy2
 #
+
 
 class ThreadingHTTPServer(ThreadingMixIn, HTTPServer):
     address_family = socket.AF_INET
@@ -104,7 +112,7 @@ class ProxyRequestHandler(BaseHTTPRequestHandler):
         self.tls = threading.local()
         self.tls.conns = {}
 
-        BaseHTTPRequestHandler.__init__(self, *args, **kwargs)
+        super().__init__(*args, **kwargs)
 
     def log_error(self, format, *args):
         # surpress "Request timed out: timeout('timed out',)"
@@ -119,22 +127,41 @@ class ProxyRequestHandler(BaseHTTPRequestHandler):
         certname = "%s.crt" % (hostname)
         certpath = os.path.join(self.certdir, certname)
 
-        if not (re_valid_ip.match(hostname) or re_valid_hostname.match(hostname)):
-            log.warn("CN name '%s' is not valid, using 'www.weevely.com'" % (hostname))
+        if not (re_valid_ip.match(hostname)
+                or re_valid_hostname.match(hostname)):
+            log.warn("CN name '%s' is not valid, using 'www.weevely.com'" %
+                     (hostname))
             hostname = 'www.weevely.com'
 
         with self.lock:
             if not os.path.isfile(certpath):
                 epoch = "%d" % (time.time() * 1000)
-                p1 = Popen(["openssl", "req", "-new", "-key", self.certkey, "-subj", "/CN=%s" % hostname], stdout=PIPE)
-                p2 = Popen(["openssl", "x509", "-req", "-days", "3650", "-CA", self.cacert, "-CAkey", self.cakey, "-set_serial", epoch, "-out", certpath], stdin=p1.stdout, stderr=PIPE)
+                p1 = Popen(
+                    [
+                        "openssl", "req", "-new", "-key", self.certkey, "-subj",
+                        "/CN=%s" % hostname
+                    ],
+                    stdout=PIPE)
+                p2 = Popen(
+                    [
+                        "openssl", "x509", "-req", "-days", "3650", "-CA",
+                        self.cacert, "-CAkey", self.cakey, "-set_serial", epoch,
+                        "-out", certpath
+                    ],
+                    stdin=p1.stdout,
+                    stderr=PIPE)
                 p2.communicate()
 
-        self.wfile.write("%s %d %s\r\n" % (self.protocol_version, 200, 'Connection Established'))
+        self.wfile.write(("%s %d %s\r\n" % (self.protocol_version, 200,
+                                           'Connection Established')).encode())
         self.end_headers()
 
         try:
-            self.connection = ssl.wrap_socket(self.connection, keyfile=self.certkey, certfile=certpath, server_side=True)
+            self.connection = ssl.wrap_socket(
+                self.connection,
+                keyfile=self.certkey,
+                certfile=certpath,
+                server_side=True)
             self.rfile = self.connection.makefile("rb", self.rbufsize)
             self.wfile = self.connection.makefile("wb", self.wbufsize)
         except Exception as e:
@@ -173,7 +200,7 @@ class ProxyRequestHandler(BaseHTTPRequestHandler):
                 other.sendall(data)
 
     def do_GET(self):
-        
+
         if self.path == 'http://weevely/':
             self.send_cacert()
             return
@@ -191,66 +218,62 @@ class ProxyRequestHandler(BaseHTTPRequestHandler):
         req.headers['Content-length'] = str(len(req_body))
 
         u = urllib.parse.urlsplit(req.path)
-        scheme, netloc, path = u.scheme, u.netloc, (u.path + '?' + u.query if u.query else u.path)
+        scheme, netloc, path = u.scheme, u.netloc, (u.path + '?' + u.query
+                                                    if u.query else u.path)
         assert scheme in ('http', 'https')
         if netloc:
             req.headers['Host'] = netloc
         setattr(req, 'headers', self.filter_headers(req.headers))
-        
-        net_curl_args = [
-            '-X',
-            self.command,
-            '-i'
-        ]
+
+        net_curl_args = ['-X', self.command, '-i']
 
         net_curl_args.append(self.path)
-        
+
         for h in req.headers:
-                
+
             if h.title().lower() == 'host':
                 host = self.headers[h]
-                
-            net_curl_args += [ '-H', '%s: %s' % ( h.title(), self.headers[h] ) ]
+
+            net_curl_args += ['-H', '%s: %s' % (h.title(), self.headers[h])]
 
         if self.command == 'POST':
             content_len = int(self.headers.getheader('content-length', 0))
-            net_curl_args += [ '-d', req_body ]
+            net_curl_args += ['-d', req_body.decode()]
 
         lock.acquire()
         try:
-            result, headers, saved = ModuleExec(
-                'net_curl',
-                net_curl_args
-            ).run()
+            result, headers, saved = ModuleExec('net_curl',
+                                                net_curl_args).run()
         finally:
             lock.release()
-            
-        
+
         if not headers:
             log.debug('Error no headers')
             self.send_error(502)
             return
-            
-        log.debug('> ' + '\r\n> '.join([ '%s: %s' % (h.title(), self.headers[h]) for h in self.headers ]))
+
+        log.debug('> ' + '\r\n> '.join(
+            ['%s: %s' % (h.title(), self.headers[h]) for h in self.headers]))
         log.debug('< ' + '\r\n< '.join(headers))
 
         http_response_str = '\r\n'.join(headers) + '\r\n\r\n' + result
-        source = FakeSocket(http_response_str)
+        source = FakeSocket(http_response_str.encode())
         res = HTTPResponse(source)
         res.begin()
 
         version_table = {10: 'HTTP/1.0', 11: 'HTTP/1.1'}
         setattr(res, 'headers', res.msg)
         setattr(res, 'response_version', version_table[res.version])
-                
+
         # support streaming
-        if not 'Content-Length' in res.headers and 'no-store' in res.headers.get('Cache-Control', ''):
+        if 'Content-Length' not in res.headers and 'no-store' in res.headers.get(
+                'Cache-Control', ''):
             setattr(res, 'headers', self.filter_headers(res.headers))
             self.relay_streaming(res)
             return
 
         try:
-            res_body = res.read()
+            res_body = res.read().decode()
         except Exception as e:
             log.debug(e)
             self.send_error(500)
@@ -258,17 +281,20 @@ class ProxyRequestHandler(BaseHTTPRequestHandler):
 
         setattr(res, 'headers', self.filter_headers(res.headers))
 
-        self.wfile.write("%s %d %s\r\n" % (self.protocol_version, res.status, res.reason))
-        for line in res.headers.headers:
-            self.wfile.write(line)
-        self.end_headers()
-        self.wfile.write(res_body)
+        self.wfile.write((
+            "%s %d %s\r\n" % (self.protocol_version, res.status, res.reason)).encode())
+        for line in res.headers._headers:
+            self.wfile.write(''.join(line).encode())
+        # self.end_headers()
+        self.wfile.write(b'\r\n\r\n')
+        self.wfile.write(res_body.encode())
         self.wfile.flush()
-        
+
     def relay_streaming(self, res):
-        self.wfile.write("%s %d %s\r\n" % (self.protocol_version, res.status, res.reason))
+        self.wfile.write((
+            "%s %d %s\r\n" % (self.protocol_version, res.status, res.reason)).encode())
         for line in res.headers.headers:
-            self.wfile.write(line)
+            self.wfile.write(line.encode())
         self.end_headers()
         try:
             while True:
@@ -289,7 +315,9 @@ class ProxyRequestHandler(BaseHTTPRequestHandler):
 
     def filter_headers(self, headers):
         # http://tools.ietf.org/html/rfc2616#section-13.5.1
-        hop_by_hop = ('connection', 'keep-alive', 'proxy-authenticate', 'proxy-authorization', 'te', 'trailers', 'transfer-encoding', 'upgrade')
+        hop_by_hop = ('connection', 'keep-alive', 'proxy-authenticate',
+                      'proxy-authorization', 'te', 'trailers',
+                      'transfer-encoding', 'upgrade')
         for k in hop_by_hop:
             del headers[k]
 
@@ -299,15 +327,19 @@ class ProxyRequestHandler(BaseHTTPRequestHandler):
         with open(self.cacert, 'rb') as f:
             data = f.read()
 
-        self.wfile.write("%s %d %s\r\n" % (self.protocol_version, 200, 'OK'))
-        self.send_header('Content-Type', 'application/x-x509-ca-cert')
-        self.send_header('Content-Length', len(data))
-        self.send_header('Connection', 'close')
+        self.wfile.write(("%s %d %s\r\n" % (self.protocol_version, 200, 'OK')).encode())
+        self.send_header(b'Content-Type', b'application/x-x509-ca-cert')
+        self.send_header(b'Content-Length', len(data))
+        self.send_header(b'Connection', b'close')
         self.end_headers()
         self.wfile.write(data)
 
 
-def run_proxy2(HandlerClass=ProxyRequestHandler, ServerClass=ThreadingHTTPServer, protocol="HTTP/1.1", hostname='127.0.0.1', port = '8080'):
+def run_proxy2(HandlerClass=ProxyRequestHandler,
+               ServerClass=ThreadingHTTPServer,
+               protocol="HTTP/1.1",
+               hostname='127.0.0.1',
+               port='8080'):
     server_address = (hostname, port)
 
     HandlerClass.protocol_version = protocol
@@ -318,44 +350,47 @@ def run_proxy2(HandlerClass=ProxyRequestHandler, ServerClass=ThreadingHTTPServer
 
 
 class Proxy(Module):
-
     """Run local proxy to pivot HTTP/HTTPS browsing through the target."""
 
     def init(self):
 
-        self.register_info(
-            {
-                'author': [
-                    'Emilio Pinna'
-                ],
-                'license': 'GPLv3'
-            }
-        )
+        self.register_info({'author': ['Emilio Pinna'], 'license': 'GPLv3'})
 
         self.register_arguments([
-            { 'name' : '-lhost', 'default' : '127.0.0.1' },
-            { 'name' : '-lport', 'default' : 8080, 'type' : int },
-            { 'name' : '-no-background', 'action' : 'store_true', 'default' : False, 'help' : 'Run foreground' }
+            {
+                'name': '-lhost',
+                'default': '127.0.0.1'
+            }, {
+                'name': '-lport',
+                'default': 8080,
+                'type': int
+            },
+            {
+                'name': '-no-background',
+                'action': 'store_true',
+                'default': False,
+                'help': 'Run foreground'
+            }
         ])
 
     def run(self):
 
-        log.warn(messages.module_net_proxy.proxy_starting_s_i % ( self.args['lhost'], self.args['lport'] ))
+        log.warn(messages.module_net_proxy.proxy_starting_s_i %
+                 (self.args['lhost'], self.args['lport']))
         log.warn(messages.module_net_proxy.proxy_set_proxy)
 
         initialize_certificates()
 
         if self.args['no_background']:
             log.warn(messages.module_net_proxy.proxy_started_foreground)
-            run_proxy2(
-                hostname = self.args['lhost'],
-                port = self.args['lport']
-            )
+            run_proxy2(hostname=self.args['lhost'], port=self.args['lport'])
         else:
             log.warn(messages.module_net_proxy.proxy_started_background)
-            server_thread = threading.Thread(target=run_proxy2, kwargs = {
-                'hostname': self.args['lhost'],
-                'port': self.args['lport']
-            })
+            server_thread = threading.Thread(
+                target=run_proxy2,
+                kwargs={
+                    'hostname': self.args['lhost'],
+                    'port': self.args['lport']
+                })
             server_thread.daemon = True
             server_thread.start()
