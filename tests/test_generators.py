@@ -14,7 +14,7 @@ def setUpModule():
 BASE_FOLDER="{base_folder}/generators/"
 rm -rf "$BASE_FOLDER"
 
-mkdir "$BASE_FOLDER"
+mkdir -p "$BASE_FOLDER"
 chown www-data: -R "$BASE_FOLDER/"
 """.format(base_folder=base_folder),
         shell=True)
