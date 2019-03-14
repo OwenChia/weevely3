@@ -60,7 +60,7 @@ EOD;
 
 print(get_tiny($d));
 """ % ('<?php %s ?>' % str(original_code)),
-        ])
+        ]).decode()
 
     except Exception as e:
         import traceback
