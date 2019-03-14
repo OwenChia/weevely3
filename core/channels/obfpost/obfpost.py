@@ -33,10 +33,8 @@ class ObfPost:
         self.url_base = '%s://%s' % (url_parsed.scheme, url_parsed.netloc)
 
         # init regexp for the returning data
-        self.re_response = re.compile(b"%s(.*)%s" % (self.header, self.trailer),
-                                      re.DOTALL)
-        self.re_debug = re.compile(
-            b"%sDEBUG(.*?)%sDEBUG" % (self.header, self.trailer), re.DOTALL)
+        self.re_response = re.compile(b"%s(.*)%s" % (self.header, self.trailer), re.DOTALL)
+        self.re_debug = re.compile(b"%sDEBUG(.*?)%sDEBUG" % (self.header, self.trailer), re.DOTALL)
 
         # Load agent
         # TODO: add this to the other channels

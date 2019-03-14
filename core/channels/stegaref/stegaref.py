@@ -142,9 +142,12 @@ class StegaRef:
 
     def _prepare(self, payload):
 
-        obfuscated_payload = base64.urlsafe_b64encode(
-            utils.strings.sxor(zlib.compress(payload),
-                               self.shared_key)).rstrip(b'=')
+        if isinstance(payload, str):
+            payload = payload.encode()
+        obfuscated_payload = base64.b64encode(
+            utils.strings.sxor(
+                zlib.compress(payload),
+                self.shared_key)).rstrip(b'=')
 
         # Generate a randomic seession_id that does not conflicts with the
         # payload chars
