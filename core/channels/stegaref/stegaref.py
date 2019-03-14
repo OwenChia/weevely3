@@ -31,20 +31,15 @@ class StegaRef:
         # Generate the 8 char long main key. Is shared with the server and
         # used to check header, footer, and encrypt the payload.
 
-        self.shared_key = hashlib.md5(
-            password.encode()).hexdigest().lower()[:8].encode()
+        self.shared_key = hashlib.md5(password.encode()).hexdigest().lower()[:8].encode()
 
         self.url = url
         url_parsed = urllib.parse.urlparse(url)
         self.url_base = '%s://%s' % (url_parsed.scheme, url_parsed.netloc)
 
         # init regexp for the returning data
-        self.re_response = re.compile(
-            b"<%s>(.*)</%s>" % (self.shared_key[:8], self.shared_key[:8]),
-            re.DOTALL)
-        self.re_debug = re.compile(
-            b"<%sDEBUG>(.*?)</%sDEBUG>" % (self.shared_key[:8],
-                                           self.shared_key[:8]), re.DOTALL)
+        self.re_response = re.compile(b"<%s>(.*)</%s>" % (self.shared_key[:8], self.shared_key[:8]), re.DOTALL)
+        self.re_debug = re.compile(b"<%sDEBUG>(.*?)</%sDEBUG>" % (self.shared_key[:8], self.shared_key[:8]), re.DOTALL)
 
         # Load and format the referrers templates (payload container)
         self.referrers_vanilla = self._load_referrers()

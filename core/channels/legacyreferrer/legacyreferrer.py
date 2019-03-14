@@ -41,7 +41,7 @@ class LegacyReferrer:
         thirds = third * 2
 
         referer = "http://www.google.com/url?sa=%s&source=web&ct=7&url=%s&rct=j&q=%s&ei=%s&usg=%s&sig2=%s" % (
-            self.password[:2], urllib.parse.quote(self.url), self.query.strip(),
+            self.password.decode()[:2], urllib.parse.quote(self.url), self.query.strip(),
             payload[:third], payload[third:thirds], payload[thirds:])
 
         opener = urllib.request.build_opener(*additional_handlers)

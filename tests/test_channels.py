@@ -212,7 +212,7 @@ class LegacyReferrerChannel(BaseTest):
             ('X-Other-Cookie', 'OTHER')
         ]
 
-        headers_string = self.channel.send('print_r(getallheaders());')[0]
+        headers_string = self.channel.send('print_r(getallheaders());')[0].decode()
 
         self.assertIn('[Cookie] => C1=F1; C2=F2; C3=F3; C4=F4', headers_string)
         self.assertNotIn('REFERER1', headers_string)
