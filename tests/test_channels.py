@@ -155,7 +155,7 @@ class LegacyCookieChannel(BaseTest):
 
         self.assertRegex(
             headers_string,
-            r'\[Cookie\] => [A-Z0-9]+=[^ ]{2}; C1=F1; C2=F2; C3=F3; C4=F4(; [A-Z0-9]+=[^ ]+)+'
+            '\[Cookie\] => [A-Z0-9]+=[^ ]{2}; C1=F1; C2=F2; C3=F3; C4=F4(; [A-Z0-9]+=[^ ]+)+'
         )
         self.assertRegex(headers_string, '\[User-Agent\] => CLIENT')
         self.assertRegex(headers_string, '\[X-Other-Cookie\] => OTHER')

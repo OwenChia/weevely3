@@ -62,8 +62,7 @@ class LegacyCookie:
         payload = utils.strings.pollute(data=payload, charset='#&*-/?@~')
 
         cookie_payload_string += prefixes.pop() + '=' + payload[:third] + '; '
-        cookie_payload_string += prefixes.pop(
-        ) + '=' + payload[third:thirds] + '; '
+        cookie_payload_string += prefixes.pop() + '=' + payload[third:thirds] + '; '
         cookie_payload_string += prefixes.pop() + '=' + payload[thirds:]
 
         opener = urllib.request.build_opener(*additional_handlers)
