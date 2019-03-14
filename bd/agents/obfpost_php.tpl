@@ -1,5 +1,5 @@
 <%! import hashlib, utils, string %><%
-passwordhash = hashlib.md5(password).hexdigest().lower()
+passwordhash = hashlib.md5(password.encode()).hexdigest().lower()
 key = passwordhash[:8]
 header = passwordhash[8:20]
 footer = passwordhash[20:32]

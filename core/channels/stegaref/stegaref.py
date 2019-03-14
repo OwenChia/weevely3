@@ -161,10 +161,8 @@ class StegaRef:
 
             # Generate 3-character urlsafe_b64encode header and footer
             # checkable on server side
-            header = hashlib.md5(session_id + self.shared_key[:4]).hexdigest(
-            ).lower()[:3].encode()
-            footer = hashlib.md5(session_id + self.shared_key[4:8]).hexdigest(
-            ).lower()[:3].encode()
+            header = hashlib.md5(session_id + self.shared_key[:4]).hexdigest().lower()[:3].encode()
+            footer = hashlib.md5(session_id + self.shared_key[4:8]).hexdigest().lower()[:3].encode()
 
             if (header not in obfuscated_payload and
                     footer not in obfuscated_payload and
