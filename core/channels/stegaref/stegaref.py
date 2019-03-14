@@ -176,6 +176,8 @@ class StegaRef:
         dlog.debug(b'DATA TO SEND: ' + remaining_payload)
         dlog.debug(b'HEADER: %s, FOOTER %s' % (header, footer))
 
+        remaining_payload = remaining_payload.decode()
+
         referrers = []
 
         # Randomize the order
@@ -244,9 +246,7 @@ class StegaRef:
                         padding_size = 0
 
                     # Add crafted parameter
-                    referrer += '%s=%s%s' % (
-                        param, remaining_payload[:payload_size],
-                        utils.strings.randstr(padding_size))
+                    referrer += '%s=%s%s' % (param, remaining_payload[:payload_size], utils.strings.randstr(padding_size))
 
                     # If some payload was inserted, add position and cut
                     # remaining payload
