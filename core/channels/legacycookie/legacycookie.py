@@ -89,7 +89,7 @@ class LegacyCookie:
         # (the trigger) and the lastest three (the splitted payload)
         additional_headers.append(
             ('Cookie',
-             '%s=%s;%s %s' % (prefixes.pop(), self.password[:2],
+             '%s=%s;%s %s' % (prefixes.pop(), self.password.decode()[:2],
                               additional_cookie if additional_cookie else '',
                               cookie_payload_string)))
 
