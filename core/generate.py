@@ -19,8 +19,8 @@ def generate(password, obfuscator='obfusc1_php', agent='obfpost_php'):
     obfuscator_template = Template(filename=obfuscator_path)
 
     try:
-        with open(agent_path, 'rb') as fd:
-            agent = Template(fd.read()).render(password=password.encode())
+        with open(agent_path, 'r') as fd:
+            agent = Template(fd.read()).render(password=password)
     except Exception as e:
         raise FatalException(
             messages.generate.error_agent_template_s_s % (agent_path, str(e)))
@@ -31,7 +31,7 @@ def generate(password, obfuscator='obfusc1_php', agent='obfpost_php'):
     agent = minified_agent if minified_agent else agent
 
     try:
-        obfuscated = obfuscator_template.render(agent=agent.decode())
+        obfuscated = obfuscator_template.render(agent=agent)
     except Exception as e:
         raise FatalException(messages.generate.error_obfuscator_template_s_s %
                              (obfuscator_path, e))
