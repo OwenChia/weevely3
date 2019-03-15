@@ -48,12 +48,12 @@ class Proxy(BaseTest):
     def test_all(self):
 
         #  HTTPS GET with no SSL check
-        self.assertIn('Google', self.run_argv(['https://www.google.com',
+        self.assertIn(b'Google', self.run_argv(['https://www.google.com',
                                                '-k']))
 
         #  HTTPS GET with cacert
         self.assertIn(
-            'Google',
+            b'Google',
             self.run_argv(['https://www.google.com'],
                           unquoted_args='--cacert ~/.weevely/certs/ca.crt'))
 
@@ -76,7 +76,7 @@ class Proxy(BaseTest):
         # OPTIONS request - there is nothing to test OPTIONS in
         # httpbin, but still it's an accepted VERB which returns 200 OK
         url = self.url + '/anything'
-        self.assertEqual('200 OK',
+        self.assertEqual(b'200 OK',
                          self._headers_result([url, '-X', 'PUT'])[0][-6:])
 
         # Add header
