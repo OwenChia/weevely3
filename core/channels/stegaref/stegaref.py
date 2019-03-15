@@ -305,10 +305,15 @@ class StegaRef:
         # The total language number will be len(positions) + 1
 
         # Send session_id composing the two first languages
-        accept_language = '%s,' % (random.choice(
-            [l for l in self.languages if '-' in l and l.startswith(bytes((session_id[0], )))]))
+        accept_language = '%s,' % (random.choice([l
+                                                  for l in self.languages
+                                                  if '-' in l and l.startswith(session_id[0])
+                                                  ]))
 
-        languages = [l for l in self.languages if '-' not in l and l.startswith(bytes((session_id[1], )))]
+        languages = [l
+                     for l in self.languages
+                     if '-' not in l and l.startswith(session_id[1])
+                     ]
         accept_language += '%s;q=0.%i' % (random.choice(languages),
                                           positions[0])
 
