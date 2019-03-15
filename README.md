@@ -2,6 +2,13 @@ Weevely
 =======
 
 **[WIP] Py3k port**
+[![Build Status](https://travis-ci.com/OwenChia/weevely3.svg?branch=py3k)](https://travis-ci.com/OwenChia/weevely3)
+
+Plan:
+- make all test pass (almost done, except net_proxy)
+- fix bugs, eg. unclosed file handler
+- refactoring with more python 3 features
+- pr
 
 
 ## Name
