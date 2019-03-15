@@ -69,7 +69,7 @@ class StegaRefChannelAdditionalHeaders(BaseStegaRefChannel):
             ('Referer', 'REFERER1'), ('X-Other-Cookie', 'OTHERCOOKIE')
         ]
 
-        headers_string = self.channel.send('print_r(getallheaders());')[0]
+        headers_string = self.channel.send('print_r(getallheaders());')[0].decode()
 
         # Cookiejar used to add cookies in additional headers add them in casual orders
         self.assertIn('C1=F1', headers_string)
