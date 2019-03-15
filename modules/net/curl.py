@@ -186,7 +186,7 @@ class Curl(Module):
                                    ['-content', result, output_path]).run()
             else:
                 try:
-                    with open(output_path, 'wb') as fd:
+                    with open(output_path, 'w') as fd:
                         fd.write(result)
                 except Exception as e:
                     log.warning(messages.generic.error_loading_file_s_s %
