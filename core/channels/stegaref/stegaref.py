@@ -7,7 +7,6 @@ import core.messages
 import zlib
 import hashlib
 import base64
-import urllib.parse
 import re
 import random
 import string
@@ -144,7 +143,7 @@ class StegaRef:
 
         if isinstance(payload, str):
             payload = payload.encode()
-        obfuscated_payload = base64.b64encode(
+        obfuscated_payload = base64.urlsafe_b64encode(
             utils.strings.sxor(
                 zlib.compress(payload),
                 self.shared_key)).rstrip(b'=')
@@ -258,7 +257,7 @@ class StegaRef:
             if not remaining_payload:
                 break
 
-        return session_id, referrers
+        return session_id.decode(), referrers
 
     def _load_referrers(self):
 
@@ -306,12 +305,10 @@ class StegaRef:
         # The total language number will be len(positions) + 1
 
         # Send session_id composing the two first languages
-        # accept_language = '%s,' % (random.choice(
-        # [l for l in self.languages if '-' in l and l.startswith(bytes((session_id[0], )))]))
-        accept_language = '%s,' % (self.languages[0])
+        accept_language = '%s,' % (random.choice(
+            [l for l in self.languages if '-' in l and l.startswith(bytes((session_id[0], )))]))
 
-        # languages = [l for l in self.languages if '-' not in l and l.startswith(bytes((session_id[1], )))]
-        languages = self.languages
+        languages = [l for l in self.languages if '-' not in l and l.startswith(bytes((session_id[1], )))]
         accept_language += '%s;q=0.%i' % (random.choice(languages),
                                           positions[0])
 
