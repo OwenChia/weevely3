@@ -160,21 +160,21 @@ class Curl(Module):
             format_args=self.args,
             condition=lambda r: r if r and r.strip() else None)
 
-        if isinstance(result, bytes):
-            result = result.decode()
-
         # Print error and exit with no response or no headers
         if not (vector_name and result):
             log.warning(messages.module_net_curl.unexpected_response)
             return None, headers, saved
-        elif '\r\n' * 2 not in result:
+        elif ('\r\n' * 2 not in result) if isinstance(result, str) else (b'\r\n' * 2 in result):
             # If something is returned but there is \r\n*2, we consider
             # everything as header. It happen with responses 204 No contents
             # that end with \r\n\r (wtf).
             headers = result
             result = ''
         else:
-            headers, result = result.split('\r\n' * 2, 1)
+            if isinstance(result, str):
+                headers, result = result.split('\r\n' * 2, 1)
+            else:
+                headers, result = result.split(b'\r\n' * 2, 1)
 
         headers = ([h.rstrip() for h in headers.split('\r\n')]
                    if '\r\n' in headers else headers)

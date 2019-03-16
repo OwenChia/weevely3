@@ -255,7 +255,7 @@ class ProxyRequestHandler(BaseHTTPRequestHandler):
 
         log.debug('> ' + '\r\n> '.join(
             ['%s: %s' % (h.title(), self.headers[h]) for h in self.headers]))
-        log.debug('< ' + '\r\n< '.join(headers))
+        # log.debug(b'< ' + b'\r\n< '.join(headers))
 
         http_response_str = '\r\n'.join(headers) + '\r\n\r\n' + result
         source = FakeSocket(http_response_str.encode())
@@ -274,7 +274,7 @@ class ProxyRequestHandler(BaseHTTPRequestHandler):
             return
 
         try:
-            res_body = res.read().decode()
+            res_body = res.read()
         except Exception as e:
             log.debug(e)
             self.send_error(500)
@@ -284,10 +284,10 @@ class ProxyRequestHandler(BaseHTTPRequestHandler):
 
         self.wfile.write((
             "%s %d %s\r\n" % (self.protocol_version, res.status, res.reason)).encode())
-        for line in res.headers._headers:
+        for line in res.headers.items():
             self.wfile.write(''.join(line).encode())
         self.wfile.write(b'\r\n')
-        self.wfile.write(res_body.encode())
+        self.wfile.write(res_body)
         self.wfile.flush()
 
     def relay_streaming(self, res):
