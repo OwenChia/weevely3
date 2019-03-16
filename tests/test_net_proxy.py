@@ -25,10 +25,15 @@ class Proxy(BaseTest):
 
     def run_argv(self, arguments, unquoted_args=''):
 
-        arguments += ['--proxy', '127.0.0.1:8080']
-        result = subprocess.check_output(
-            'curl -s %s "%s"' % (unquoted_args, '" "'.join(arguments)),
-            shell=True).strip()
+        arguments += ['--proxy', '127.0.0.1:8080',
+                      '--connect-timeout', '300']
+        try:
+            result = subprocess.check_output(
+                'curl -s %s "%s"' % (unquoted_args, '" "'.join(arguments)),
+                shell=True).strip()
+        except subprocess.CalledProcessError as e:
+            # for debug
+            result = e.output
 
         return result
 
