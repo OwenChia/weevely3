@@ -154,7 +154,7 @@ class ProxyRequestHandler(BaseHTTPRequestHandler):
 
         self.wfile.write(("%s %d %s\r\n" % (self.protocol_version, 200,
                                             'Connection Established')).encode())
-        self.wfile.write(b'\r\n\r\n')
+        self.wfile.write(b'\r\n')
 
         try:
             self.connection = ssl.wrap_socket(
@@ -286,7 +286,7 @@ class ProxyRequestHandler(BaseHTTPRequestHandler):
             "%s %d %s\r\n" % (self.protocol_version, res.status, res.reason)).encode())
         for line in res.headers._headers:
             self.wfile.write(''.join(line).encode())
-        self.wfile.write(b'\r\n\r\n')
+        self.wfile.write(b'\r\n')
         self.wfile.write(res_body.encode())
         self.wfile.flush()
 
@@ -295,7 +295,7 @@ class ProxyRequestHandler(BaseHTTPRequestHandler):
             "%s %d %s\r\n" % (self.protocol_version, res.status, res.reason)).encode())
         for line in res.headers.headers:
             self.wfile.write(line.encode())
-        self.wfile.write(b'\r\n\r\n')
+        self.wfile.write(b'\r\n')
         try:
             while True:
                 chunk = res.read(8192)
